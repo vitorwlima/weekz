@@ -19,7 +19,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
       <body className="flex h-screen bg-neutral-100 text-neutral-950">
         <TRPCReactProvider>
           <Sidebar />
-          <main className="h-screen p-6">{children}</main>
+          {children}
         </TRPCReactProvider>
       </body>
     </html>

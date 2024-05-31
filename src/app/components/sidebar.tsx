@@ -14,7 +14,7 @@ export const Sidebar = () => {
   const pathname = usePathname()
 
   return (
-    <div className="flex h-screen w-96 flex-col p-6">
+    <div className="flex h-screen w-96 min-w-96 flex-col p-6">
       <header className="mb-6 flex items-center justify-between">
         <h1 className="text-xl font-bold">dayprime</h1>
         <div className="size-7 rounded-full bg-neutral-400" />
