@@ -5,9 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  '@fontsource/outfit':
-    specifier: ^5.0.13
-    version: 5.0.13
+  '@fontsource/inter':
+    specifier: ^5.0.18
+    version: 5.0.18
   '@prisma/client':
     specifier: ^5.14.0
     version: 5.14.0(prisma@5.14.0)
@@ -26,6 +26,9 @@ dependencies:
   '@trpc/server':
     specifier: next
     version: 11.0.0-rc.382
+  lucide-react:
+    specifier: ^0.381.0
+    version: 0.381.0(react@18.3.1)
   next:
     specifier: ^14.2.1
     version: 14.2.3(react-dom@18.3.1)(react@18.3.1)
@@ -140,8 +143,8 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
 
-  /@fontsource/outfit@5.0.13:
-    resolution: {integrity: sha512-wIPcryKAs7Vu1/FyG0qSsrzN0SWq/oclGSZNIspuZXR6/lsCerFrHoMdMyDcidg+KTWE68/Du2qGz2B4Gtrg4w==}
+  /@fontsource/inter@5.0.18:
+    resolution: {integrity: sha512-YCsoYPTcs713sI7tLtxaPrIhXAXvEetGg5Ry02ivA8qUOb3fQHojbK/X9HLD5OOKvFUNR2Ynkwb1kR1hVKQHpw==}
     dev: false
 
   /@humanwhocodes/config-array@0.11.14:
@@ -2195,6 +2198,14 @@ packages:
     resolution: {integrity: sha512-9hp3Vp2/hFQUiIwKo8XCeFVnrg8Pk3TYNPIR7tJADKi5YfcF7vEaK7avFHTlSy3kOKYaJQaalfEo6YuXdceBOQ==}
     engines: {node: 14 || >=16.14}
     dev: true
+
+  /lucide-react@0.381.0(react@18.3.1):
+    resolution: {integrity: sha512-cft0ywFfHkGprX5pwKyS9jme/ksh9eYAHSZqFRKN0XGp70kia4uqZOTPB+i+O51cqiJlvGLqzMGWnMHaeJTs3g==}
+    peerDependencies:
+      react: ^16.5.1 || ^17.0.0 || ^18.0.0
+    dependencies:
+      react: 18.3.1
+    dev: false
 
   /merge2@1.4.1:
     resolution: {integrity: sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==}

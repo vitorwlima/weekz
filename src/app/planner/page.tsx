@@ -1,4 +1,4 @@
-const Dashboard = () => {
+const Planner = () => {
   return (
     <>
       <header className="flex flex-col gap-1">
@@ -6,9 +6,9 @@ const Dashboard = () => {
         <p className="text-sm text-neutral-800">Fri, May 31</p>
       </header>
 
-      <p className="mt-8">Dashboard in construction.</p>
+      <p className="mt-8">Planner in construction.</p>
     </>
   )
 }
 
-export default Dashboard
+export default Planner
