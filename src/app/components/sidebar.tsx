@@ -1,6 +1,12 @@
 'use client'
 
-import { LucideCalendar, LucideLayoutGrid, LucideSearch } from 'lucide-react'
+import {
+  LucideBrain,
+  LucideCalendar,
+  LucideLayoutGrid,
+  LucidePlus,
+  LucideSearch,
+} from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -26,7 +32,7 @@ export const Sidebar = () => {
         />
       </label>
 
-      <nav className="flex flex-col gap-2">
+      <nav className="mb-12 flex flex-col gap-2">
         <Link
           href="/"
           className={`flex items-center gap-2 rounded-xl p-3 py-2 transition-all hover:bg-neutral-50 hover:shadow ${pathname === '/' ? 'bg-neutral-50 shadow' : 'text-neutral-500'}`}
@@ -42,6 +48,28 @@ export const Sidebar = () => {
           <span>Planner</span>
         </Link>
       </nav>
+
+      <section>
+        <header className="mb-4 flex items-center justify-between text-neutral-500">
+          <h3 className="flex items-center gap-2">
+            <LucideBrain />
+            <span>BRAIN DUMP</span>
+          </h3>
+          <p className="text-sm">2 tasks</p>
+        </header>
+
+        <label htmlFor="braindump-task" className="relative">
+          <LucidePlus className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-neutral-500" />
+
+          <input
+            type="text"
+            name="braindump-task"
+            id="braindump-task"
+            placeholder="Add a task"
+            className="w-full rounded-xl border border-neutral-400 bg-neutral-50 p-3 py-2 pl-10 outline-none placeholder:font-light placeholder:text-neutral-500"
+          />
+        </label>
+      </section>
     </div>
   )
 }
