@@ -5,7 +5,10 @@ import { createTRPCRouter, publicProcedure } from '~/server/api/trpc'
 export const postRouter = createTRPCRouter({
   hello: publicProcedure
     .input(z.object({ text: z.string() }))
-    .query(({ input }) => {
+    .query(async ({ input }) => {
+      // simulate a slow db call
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
       return {
         greeting: `Hello ${input.text}`,
       }
