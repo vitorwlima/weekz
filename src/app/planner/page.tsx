@@ -19,7 +19,7 @@ const Planner = () => {
       </header>
 
       <div
-        className="flex h-full gap-4 overflow-auto rounded-xl bg-neutral-50 p-2"
+        className="flex h-full gap-4 overflow-auto rounded-xl p-2"
         onWheel={(e) => {
           if (e.deltaY === 0) return
 
@@ -30,9 +30,9 @@ const Planner = () => {
         }}
       >
         {todayAndLastWeekAndNextWeek.map((date) => (
-          <div key={date} className="w-56 min-w-56 p-4">
+          <div key={date} className="w-72 min-w-72 p-4">
             <header className="mb-2 flex flex-col">
-              <p className="text-xl">Monday</p>
+              <p className="text-2xl font-semibold">Monday</p>
               <p className="text-sm font-light text-neutral-800">January 11</p>
             </header>
 
