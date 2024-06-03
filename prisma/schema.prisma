@@ -10,11 +10,43 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+model Task {
+    id            String   @id @default(uuid())
+    userId        String   @map("user_id")
+    title         String
+    date          DateTime
+    estimatedTime Int      @map("estimated_time")
+    frequency     String
 
-    @@index([name])
+    subtasks Subtask[]
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+    @@map("tasks")
+}
+
+model Subtask {
+    id    String @id @default(uuid())
+    title String
+
+    task   Task   @relation(fields: [taskId], references: [id])
+    taskId String
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+    @@map("subtasks")
+}
+
+model TaskCompletion {
+    id              String   @id @default(uuid())
+    taskOrSubtaskId String   @map("task_or_subtask_id")
+    date            DateTime
+    completed       Boolean
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+    @@map("task_completions")
 }
