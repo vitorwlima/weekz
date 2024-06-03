@@ -1,5 +1,6 @@
 'use client'
 
+import { useUser } from '@clerk/nextjs'
 import { LucidePlus } from 'lucide-react'
 
 const getTodayAndLastWeekDaysAndNextWeekDays = () => {
@@ -7,12 +8,13 @@ const getTodayAndLastWeekDaysAndNextWeekDays = () => {
 }
 
 const Planner = () => {
+  const { user } = useUser()
   const todayAndLastWeekAndNextWeek = getTodayAndLastWeekDaysAndNextWeekDays()
 
   return (
     <main className="flex h-screen flex-col overflow-hidden p-6">
       <header className="mb-6 flex flex-col gap-1">
-        <h2 className="text-2xl">Hello, Vitor</h2>
+        <h2 className="text-2xl">Hello, {user?.firstName}</h2>
         <p className="text-sm font-light text-neutral-800">
           Here is your planner
         </p>

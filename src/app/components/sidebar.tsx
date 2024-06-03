@@ -1,5 +1,6 @@
 'use client'
 
+import { UserButton } from '@clerk/nextjs'
 import {
   LucideBrain,
   LucideCalendar,
@@ -14,10 +15,10 @@ export const Sidebar = () => {
   const pathname = usePathname()
 
   return (
-    <div className="flex h-screen w-96 min-w-96 flex-col p-6 border-r border-neutral-300">
+    <div className="flex h-screen w-96 min-w-96 flex-col border-r border-neutral-300 p-6">
       <header className="mb-6 flex items-center justify-between">
         <h1 className="text-xl font-bold">dayprime</h1>
-        <div className="size-7 rounded-full bg-neutral-400" />
+        <UserButton />
       </header>
 
       <label htmlFor="search" className="relative mb-6">

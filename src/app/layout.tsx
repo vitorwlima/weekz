@@ -4,8 +4,8 @@ import '@fontsource/inter/400.css'
 import '@fontsource/inter/500.css'
 import '@fontsource/inter/600.css'
 import '@fontsource/inter/700.css'
+import { ClerkProvider } from '@clerk/nextjs'
 import { TRPCReactProvider } from '~/trpc/react'
-import { Sidebar } from './components/sidebar'
 
 export const metadata = {
   title: 'dayprime',
@@ -15,14 +15,13 @@ export const metadata = {
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <html lang="en">
-      <body className="flex h-screen bg-neutral-100 text-neutral-950">
-        <TRPCReactProvider>
-          <Sidebar />
-          {children}
-        </TRPCReactProvider>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body className="flex h-screen bg-neutral-100 text-neutral-950">
+          <TRPCReactProvider>{children}</TRPCReactProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   )
 }
 
