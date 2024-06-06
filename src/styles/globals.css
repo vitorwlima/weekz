@@ -13,3 +13,7 @@
 ::-webkit-scrollbar-thumb {
   @apply rounded-full bg-neutral-400;
 }
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+  display: none;
+}

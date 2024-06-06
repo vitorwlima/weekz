@@ -22,7 +22,10 @@ export const Sidebar = () => {
       </header>
 
       <label htmlFor="search" className="relative mb-6">
-        <LucideSearch className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-neutral-500" />
+        <LucideSearch
+          strokeWidth={1.5}
+          className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-neutral-500"
+        />
 
         <input
           type="text"
