@@ -10,6 +10,7 @@ import {
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { AddTaskInput } from './add-task-input'
+import clsx from 'clsx'
 
 export const Sidebar = () => {
   const pathname = usePathname()
@@ -39,14 +40,22 @@ export const Sidebar = () => {
       <nav className="mb-12 flex flex-col gap-2">
         <Link
           href="/"
-          className={`flex items-center gap-2 rounded-xl p-3 py-2 transition-all hover:bg-neutral-50 hover:shadow ${pathname === '/' ? 'bg-neutral-50 shadow' : 'text-neutral-500'}`}
+          className={clsx(
+            'flex items-center gap-2 rounded-xl p-3 py-2 transition-all hover:bg-neutral-50 hover:shadow',
+            pathname === '/' ? 'bg-neutral-50 shadow' : 'text-neutral-500',
+          )}
         >
           <LucideLayoutGrid className="size-5" />
           <span>Dashboard</span>
         </Link>
         <Link
           href="/planner"
-          className={`flex items-center gap-2 rounded-xl p-3 py-2 transition-all hover:bg-neutral-50 hover:shadow ${pathname === '/planner' ? 'bg-neutral-50 shadow' : 'text-neutral-500'}`}
+          className={clsx(
+            'flex items-center gap-2 rounded-xl p-3 py-2 transition-all hover:bg-neutral-50 hover:shadow',
+            pathname === '/planner'
+              ? 'bg-neutral-50 shadow'
+              : 'text-neutral-500',
+          )}
         >
           <LucideCalendar className="size-5" />
           <span>Planner</span>

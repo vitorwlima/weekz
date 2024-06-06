@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import { LucidePlusCircle as LucidePlus } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
@@ -46,7 +47,10 @@ export const AddTaskInput: React.FC<Props> = ({ id }) => {
       <input
         type="time"
         id={`time-${id}`}
-        className={`absolute right-1.5 top-0 w-12 -translate-y-1.5 rounded-lg border border-neutral-400 bg-neutral-50 p-1 text-xs outline-none placeholder:font-light placeholder:text-neutral-500 ${shouldShowTime ? 'block' : 'hidden'}`}
+        className={clsx(
+          'absolute right-1.5 top-0 w-12 -translate-y-1.5 rounded-lg border border-neutral-400 bg-neutral-50 p-1 text-xs outline-none placeholder:font-light placeholder:text-neutral-500',
+          shouldShowTime ? 'block' : 'hidden',
+        )}
       />
     </label>
   )
