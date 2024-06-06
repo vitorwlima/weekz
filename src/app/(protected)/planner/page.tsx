@@ -1,24 +1,18 @@
 'use client'
 
-import { useUser } from '@clerk/nextjs'
 import { LucidePlus } from 'lucide-react'
+import { PageIntroduction } from '~/app/components/page-introduction'
 
 const getTodayAndLastWeekDaysAndNextWeekDays = () => {
   return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
 }
 
 const Planner = () => {
-  const { user } = useUser()
   const todayAndLastWeekAndNextWeek = getTodayAndLastWeekDaysAndNextWeekDays()
 
   return (
     <main className="flex h-screen flex-col overflow-hidden p-6">
-      <header className="mb-6 flex flex-col gap-1">
-        <h2 className="text-2xl">Hello, {user?.firstName}</h2>
-        <p className="text-sm font-light text-neutral-800">
-          Here is your planner
-        </p>
-      </header>
+      <PageIntroduction description="Here is your planner" />
 
       <div
         className="flex h-full gap-4 overflow-auto rounded-xl p-2"
