@@ -1,6 +1,6 @@
 'use client'
 
-import { LucidePlus } from 'lucide-react'
+import { AddTaskInput } from '~/app/components/add-task-input'
 import { PageIntroduction } from '~/app/components/page-introduction'
 
 const getTodayAndLastWeekDaysAndNextWeekDays = () => {
@@ -32,17 +32,7 @@ const Planner = () => {
               <p className="text-sm font-light text-neutral-800">January 11</p>
             </header>
 
-            <label htmlFor="braindump-task" className="relative text-sm">
-              <LucidePlus className="pointer-events-none absolute left-2 top-1/2 size-5 -translate-y-1/2 text-neutral-500" />
-
-              <input
-                type="text"
-                name="braindump-task"
-                id="braindump-task"
-                placeholder="Add a task"
-                className="w-full rounded-xl border border-neutral-400 bg-neutral-50 p-1 pl-8 outline-none placeholder:font-light placeholder:text-neutral-500"
-              />
-            </label>
+            <AddTaskInput id={`task-${date}`} />
           </div>
         ))}
       </div>

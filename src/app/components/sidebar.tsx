@@ -5,11 +5,11 @@ import {
   LucideBrain,
   LucideCalendar,
   LucideLayoutGrid,
-  LucidePlus,
   LucideSearch,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { AddTaskInput } from './add-task-input'
 
 export const Sidebar = () => {
   const pathname = usePathname()
@@ -59,17 +59,7 @@ export const Sidebar = () => {
           <p className="text-sm">2 tasks</p>
         </header>
 
-        <label htmlFor="braindump-task" className="relative">
-          <LucidePlus className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-neutral-500" />
-
-          <input
-            type="text"
-            name="braindump-task"
-            id="braindump-task"
-            placeholder="Add a task"
-            className="w-full rounded-xl border border-neutral-400 bg-neutral-50 p-3 py-2 pl-10 outline-none placeholder:font-light placeholder:text-neutral-500"
-          />
-        </label>
+        <AddTaskInput id="braindump-task" />
       </section>
     </div>
   )
