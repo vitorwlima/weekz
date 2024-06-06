@@ -1,57 +1,90 @@
 import clsx from 'clsx'
 import { LucidePlusCircle as LucidePlus } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
+import { z } from 'zod'
+import { useHandleOutsideClick } from '~/lib/use-handle-outside-click'
+import { useZodForm } from '~/lib/use-zod-form'
+import { api } from '~/trpc/react'
 
-type Props = {
-  id: string;
-};
+type Props =
+  | {
+      isBrainDumpTask: false;
+      date: string;
+    }
+  | {
+      isBrainDumpTask: true;
+      date?: never;
+    };
 
-export const AddTaskInput: React.FC<Props> = ({ id }) => {
-  const containerRef = useRef<HTMLLabelElement>(null)
+const addTaskSchema = z.object({
+  title: z.string().min(2),
+  estimatedTime: z.string().optional(),
+})
+
+export const AddTaskInput: React.FC<Props> = ({ isBrainDumpTask, date }) => {
+  const { mutate } = api.task.create.useMutation()
+
+  const { register, handleSubmit, reset } = useZodForm({
+    schema: addTaskSchema,
+    onSubmit: (data) => {
+      const estimatedTime = data.estimatedTime
+        ? data.estimatedTime
+            .split(':')
+            .reduce((acc, cur) => acc * 60 + Number(cur), 0)
+        : undefined
+
+      mutate(
+        {
+          title: data.title,
+          date: isBrainDumpTask ? 'braindump' : date,
+          frequency: 'once',
+          estimatedTime,
+        },
+        {
+          onSuccess: () => {
+            reset()
+          },
+        },
+      )
+    },
+  })
+
+  const containerRef = useRef<HTMLFormElement>(null)
   const [shouldShowTime, setShouldShowTime] = useState(false)
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setShouldShowTime(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
+  useHandleOutsideClick({
+    ref: containerRef,
+    onOutsideClick: () => setShouldShowTime(false),
   })
 
   return (
-    <label htmlFor={id} ref={containerRef} className="relative text-sm">
+    <form
+      onSubmit={handleSubmit}
+      // onBlur={() => reset()} // onBlur reset both inputs
+      ref={containerRef}
+      className="relative text-sm"
+    >
       <LucidePlus
         strokeWidth={1.5}
         className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-neutral-500"
       />
 
       <input
+        {...register('title')}
         type="text"
-        name={id}
-        id={id}
         placeholder="Add a task"
         className="w-full rounded-xl border border-neutral-400 bg-neutral-50 p-3 py-2 pl-10 outline-none placeholder:font-light placeholder:text-neutral-500"
         onFocus={() => setShouldShowTime(true)}
-        // TODO: onBlur reset both inputs
       />
 
       <input
+        {...register('estimatedTime')} // TODO: on enter here submit
         type="time"
-        id={`time-${id}`}
         className={clsx(
-          'absolute right-1.5 top-0 w-12 -translate-y-1.5 rounded-lg border border-neutral-400 bg-neutral-50 p-1 text-xs outline-none placeholder:font-light placeholder:text-neutral-500',
+          'absolute right-1.5 top-0 w-12 translate-y-[5px] rounded-lg border border-neutral-400 bg-neutral-50 p-1 text-xs outline-none placeholder:font-light placeholder:text-neutral-500',
           shouldShowTime ? 'block' : 'hidden',
         )}
       />
-    </label>
+    </form>
   )
 }

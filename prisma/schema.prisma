@@ -11,11 +11,11 @@ datasource db {
 }
 
 model Task {
-    id            String   @id @default(uuid())
-    userId        String   @map("user_id")
+    id            String @id @default(uuid())
+    userId        String @map("user_id")
     title         String
-    date          DateTime
-    estimatedTime Int      @map("estimated_time")
+    date          String
+    estimatedTime Int?   @map("estimated_time")
     frequency     String
 
     subtasks Subtask[]

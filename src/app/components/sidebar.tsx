@@ -71,7 +71,7 @@ export const Sidebar = () => {
           <p className="text-sm">2 tasks</p>
         </header>
 
-        <AddTaskInput id="braindump-task" />
+        <AddTaskInput isBrainDumpTask />
       </section>
     </div>
   )

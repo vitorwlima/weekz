@@ -46,7 +46,10 @@ const Planner = () => {
                 {format(date, 'MMMM d')} {isToday(date) ? '(Today)' : ''}
               </p>
             </header>
-            <AddTaskInput id={`task-${format(date, 'dd/MM/yyyy')}`} />
+            <AddTaskInput
+              isBrainDumpTask={false}
+              date={format(date, 'dd/MM/yyyy')}
+            />
           </div>
         ))}
       </div>
