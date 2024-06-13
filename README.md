@@ -6,7 +6,7 @@ This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3
 
 ### Part 1 (MVP)
 
-- [] Add correct date on dashboard intro
+- [x] Add correct date on dashboard intro
 - [] Check vertical scrolling on task list per day (test with many tasks)
 
 - [] On left click, go to task dialog to be able to delete and edit:
