@@ -11,9 +11,12 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { AddTaskInput } from './add-task-input'
 import clsx from 'clsx'
+import { api } from '~/trpc/react'
+import { Task } from './task'
 
 export const Sidebar = () => {
   const pathname = usePathname()
+  const { data } = api.task.getAll.useQuery()
 
   return (
     <div className="flex h-screen w-96 min-w-96 flex-col border-r border-neutral-300 p-6">
@@ -72,6 +75,12 @@ export const Sidebar = () => {
         </header>
 
         <AddTaskInput isBrainDumpTask />
+
+        <ul className="mt-2 flex flex-col gap-2">
+          {data
+            ?.filter((task) => task.date === 'braindump')
+            .map((task) => <Task key={task.id} task={task} />)}
+        </ul>
       </section>
     </div>
   )
