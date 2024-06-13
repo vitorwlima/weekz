@@ -3,14 +3,18 @@
 import { format } from 'date-fns'
 import { DayBlock } from './day-block'
 import { api } from '~/trpc/react'
-import useSmoothHorizontalScroll from 'use-smooth-horizontal-scroll'
 
 type Props = {
   dates: Date[];
+  handleScroll: () => void;
+  scrollContainerRef: React.RefObject<HTMLDivElement>;
 };
 
-export const Planner: React.FC<Props> = ({ dates }) => {
-  const { scrollContainerRef, handleScroll } = useSmoothHorizontalScroll()
+export const Planner: React.FC<Props> = ({
+  dates,
+  handleScroll,
+  scrollContainerRef,
+}) => {
   const { data: completions } = api.task.getCompletions.useQuery()
   const { data } = api.task.getAll.useQuery()
 
@@ -27,8 +31,8 @@ export const Planner: React.FC<Props> = ({ dates }) => {
 
   return (
     <div
-      className="flex h-full gap-4 overflow-auto rounded-xl p-2"
-      ref={scrollContainerRef as React.RefObject<HTMLDivElement>}
+      className="flex h-full gap-4 overflow-auto"
+      ref={scrollContainerRef}
       onScroll={handleScroll}
     >
       {dates.map((date) => (
