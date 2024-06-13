@@ -12,7 +12,7 @@ type Props = {
 
 export const DayBlock: React.FC<Props> = ({ date, tasks }) => {
   return (
-    <div className="w-80 min-w-80 p-4">
+    <div className="day-block mb-2 w-80 min-w-80 overflow-hidden p-4">
       <header className="mb-2 flex flex-col">
         <p className="text-2xl font-semibold">{format(date, 'EEEE')}</p>
         <p className="text-sm font-light text-neutral-800">
@@ -22,7 +22,7 @@ export const DayBlock: React.FC<Props> = ({ date, tasks }) => {
 
       <AddTaskInput isBrainDumpTask={false} date={format(date, 'dd/MM/yyyy')} />
 
-      <ul className="mt-2 flex flex-col gap-2">
+      <ul className="mt-2 flex h-full flex-col gap-2 overflow-y-scroll">
         {tasks.map((task) => (
           <Task key={task.id} task={task} />
         ))}

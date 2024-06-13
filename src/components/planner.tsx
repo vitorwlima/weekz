@@ -31,7 +31,7 @@ export const Planner: React.FC<Props> = ({
 
   return (
     <div
-      className="flex h-full gap-4 overflow-auto"
+      className="flex h-full gap-4 overflow-x-auto overflow-y-hidden"
       ref={scrollContainerRef}
       onScroll={handleScroll}
     >
