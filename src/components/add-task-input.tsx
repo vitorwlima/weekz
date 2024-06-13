@@ -1,3 +1,5 @@
+'use client'
+
 import clsx from 'clsx'
 import { LucidePlusCircle as LucidePlus } from 'lucide-react'
 import { useRef, useState } from 'react'
@@ -22,7 +24,13 @@ const addTaskSchema = z.object({
 })
 
 export const AddTaskInput: React.FC<Props> = ({ isBrainDumpTask, date }) => {
-  const { mutate } = api.task.create.useMutation()
+  const utils = api.useUtils()
+  const { mutate } = api.task.create.useMutation({
+    onSuccess: async () => {
+      reset()
+      await utils.task.getAll.invalidate()
+    },
+  })
 
   const { register, handleSubmit, reset } = useZodForm({
     schema: addTaskSchema,
@@ -33,19 +41,12 @@ export const AddTaskInput: React.FC<Props> = ({ isBrainDumpTask, date }) => {
             .reduce((acc, cur) => acc * 60 + Number(cur), 0)
         : undefined
 
-      mutate(
-        {
-          title: data.title,
-          date: isBrainDumpTask ? 'braindump' : date,
-          frequency: 'once',
-          estimatedTime,
-        },
-        {
-          onSuccess: () => {
-            reset()
-          },
-        },
-      )
+      mutate({
+        title: data.title,
+        date: isBrainDumpTask ? 'braindump' : date,
+        frequency: 'once',
+        estimatedTime,
+      })
     },
   })
 
