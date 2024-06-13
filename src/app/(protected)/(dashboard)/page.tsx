@@ -1,4 +1,4 @@
-import { PageIntroduction } from '~/app/components/page-introduction'
+import { PageIntroduction } from '~/components/page-introduction'
 
 const Dashboard = () => {
   return (
