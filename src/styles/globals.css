@@ -14,7 +14,7 @@
   @apply rounded-full bg-neutral-400;
 }
 
-.day-block {
+.hide-scroll {
   ::-webkit-scrollbar {
     @apply hidden;
   }

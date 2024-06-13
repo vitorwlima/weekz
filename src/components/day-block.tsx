@@ -12,7 +12,7 @@ type Props = {
 
 export const DayBlock: React.FC<Props> = ({ date, tasks }) => {
   return (
-    <div className="day-block mb-2 w-80 min-w-80 overflow-hidden p-4">
+    <div className="hide-scroll mb-2 w-80 min-w-80 overflow-hidden p-4">
       <header className="mb-2 flex flex-col">
         <p className="text-2xl font-semibold">{format(date, 'EEEE')}</p>
         <p className="text-sm font-light text-neutral-800">
