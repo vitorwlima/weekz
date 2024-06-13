@@ -3,9 +3,11 @@ import { AddTaskInput } from './add-task-input'
 import { type RouterOutputs } from '~/trpc/react'
 import { Task } from './task'
 
+type Task = RouterOutputs['task']['getAll'][number] & { completed: boolean };
+
 type Props = {
   date: Date;
-  tasks: RouterOutputs['task']['getAll'];
+  tasks: Task[];
 };
 
 export const DayBlock: React.FC<Props> = ({ date, tasks }) => {

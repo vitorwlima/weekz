@@ -10,6 +10,18 @@ type Props = {
 
 export const Planner: React.FC<Props> = ({ dates }) => {
   const { data } = api.task.getAll.useQuery()
+  const { data: completions } = api.task.getCompletions.useQuery()
+
+  const tasks = data?.map((task) => {
+    const completion = completions?.find(
+      (c) => c.taskOrSubtaskId === task.id && c.date === task.date,
+    )
+
+    return {
+      ...task,
+      completed: completion?.completed ?? false,
+    }
+  })
 
   return (
     <div
@@ -28,7 +40,7 @@ export const Planner: React.FC<Props> = ({ dates }) => {
           key={format(date, 'dd/MM/yyyy')}
           date={date}
           tasks={
-            data?.filter((task) => task.date === format(date, 'dd/MM/yyyy')) ??
+            tasks?.filter((task) => task.date === format(date, 'dd/MM/yyyy')) ??
             []
           }
         />

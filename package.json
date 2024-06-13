@@ -19,6 +19,7 @@
     "@fontsource/inter": "^5.0.18",
     "@hookform/resolvers": "^3.6.0",
     "@prisma/client": "^5.14.0",
+    "@radix-ui/react-checkbox": "^1.0.4",
     "@t3-oss/env-nextjs": "^0.10.1",
     "@tanstack/react-query": "^5.39.0",
     "@trpc/client": "next",

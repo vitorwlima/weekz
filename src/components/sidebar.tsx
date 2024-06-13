@@ -18,6 +18,8 @@ export const Sidebar = () => {
   const pathname = usePathname()
   const { data } = api.task.getAll.useQuery()
 
+  const tasks = data?.filter((task) => task.date === 'braindump') ?? []
+
   return (
     <div className="flex h-screen w-96 min-w-96 flex-col border-r border-neutral-300 p-6">
       <header className="mb-6 flex items-center justify-between">
@@ -28,7 +30,7 @@ export const Sidebar = () => {
       <label htmlFor="search" className="relative mb-6">
         <LucideSearch
           strokeWidth={1.5}
-          className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-neutral-500"
+          className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-neutral-400"
         />
 
         <input
@@ -36,7 +38,7 @@ export const Sidebar = () => {
           name="search"
           id="search"
           placeholder="Search or jump to"
-          className="w-full rounded-xl border border-neutral-400 bg-transparent p-3 py-2 pl-10 outline-none placeholder:font-light placeholder:text-neutral-500"
+          className="w-full rounded-xl border border-neutral-300 bg-transparent p-3 py-2 pl-10 outline-none placeholder:font-light placeholder:text-neutral-400"
         />
       </label>
 
@@ -71,15 +73,17 @@ export const Sidebar = () => {
             <LucideBrain />
             <span>BRAIN DUMP</span>
           </h3>
-          <p className="text-sm">2 tasks</p>
+          <p className="text-sm">
+            {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
+          </p>
         </header>
 
         <AddTaskInput isBrainDumpTask />
 
         <ul className="mt-2 flex flex-col gap-2">
-          {data
-            ?.filter((task) => task.date === 'braindump')
-            .map((task) => <Task key={task.id} task={task} />)}
+          {tasks.map((task) => (
+            <Task key={task.id} task={task} />
+          ))}
         </ul>
       </section>
     </div>

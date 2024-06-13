@@ -40,9 +40,10 @@ model Subtask {
 }
 
 model TaskCompletion {
-    id              String   @id @default(uuid())
-    taskOrSubtaskId String   @map("task_or_subtask_id")
-    date            DateTime
+    id              String  @id @default(uuid())
+    userId          String  @map("user_id")
+    taskOrSubtaskId String  @map("task_or_subtask_id")
+    date            String
     completed       Boolean
 
     createdAt DateTime @default(now()) @map("created_at")

@@ -3,6 +3,57 @@ import { z } from 'zod'
 import { createTRPCRouter, protectedProcedure } from '~/server/api/trpc'
 
 export const taskRouter = createTRPCRouter({
+  getAll: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.db.task.findMany({
+      where: {
+        userId: ctx.userId,
+      },
+    })
+  }),
+  getCompletions: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.db.taskCompletion.findMany({
+      where: {
+        userId: ctx.userId,
+      },
+    })
+  }),
+  completeTask: protectedProcedure
+    .input(
+      z.object({
+        id: z.string().uuid(),
+        date: z.string(),
+        completed: z.boolean(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const completion = await ctx.db.taskCompletion.findFirst({
+        where: {
+          userId: ctx.userId,
+          taskOrSubtaskId: input.id,
+          date: input.date,
+        },
+      })
+
+      if (completion) {
+        return ctx.db.taskCompletion.update({
+          where: {
+            id: completion.id,
+          },
+          data: {
+            completed: input.completed,
+          },
+        })
+      }
+
+      return ctx.db.taskCompletion.create({
+        data: {
+          userId: ctx.userId,
+          taskOrSubtaskId: input.id,
+          date: input.date,
+          completed: input.completed,
+        },
+      })
+    }),
   create: protectedProcedure
     .input(
       z.object({
@@ -23,11 +74,4 @@ export const taskRouter = createTRPCRouter({
         },
       })
     }),
-  getAll: protectedProcedure.query(async ({ ctx }) => {
-    return ctx.db.task.findMany({
-      where: {
-        userId: ctx.userId,
-      },
-    })
-  }),
 })

@@ -67,14 +67,14 @@ export const AddTaskInput: React.FC<Props> = ({ isBrainDumpTask, date }) => {
     >
       <LucidePlus
         strokeWidth={1.5}
-        className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-neutral-500"
+        className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-neutral-400"
       />
 
       <input
         {...register('title')}
         type="text"
         placeholder="Add a task"
-        className="w-full rounded-xl border border-neutral-400 bg-neutral-50 p-3 py-2 pl-10 outline-none placeholder:font-light placeholder:text-neutral-500"
+        className="w-full rounded-xl border border-neutral-300 bg-neutral-50 p-3 py-2 pl-10 outline-none placeholder:font-light placeholder:text-neutral-500"
         onFocus={() => setShouldShowTime(true)}
       />
 
@@ -82,7 +82,7 @@ export const AddTaskInput: React.FC<Props> = ({ isBrainDumpTask, date }) => {
         {...register('estimatedTime')} // TODO: on enter here submit
         type="time"
         className={clsx(
-          'absolute right-1.5 top-0 w-12 translate-y-[5px] rounded-lg border border-neutral-400 bg-neutral-50 p-1 text-xs outline-none placeholder:font-light placeholder:text-neutral-500',
+          'absolute right-1.5 top-0 w-12 translate-y-[5px] rounded-lg border border-neutral-300 bg-neutral-50 p-1 text-xs outline-none placeholder:font-light placeholder:text-neutral-500',
           shouldShowTime ? 'block' : 'hidden',
         )}
       />
