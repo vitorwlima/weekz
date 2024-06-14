@@ -8,6 +8,7 @@ import {
   LucideCheck,
   LucideClock,
   LucideRepeat,
+  LucideTrash,
 } from 'lucide-react'
 import { api, type RouterOutputs } from '~/trpc/react'
 import { DayPicker } from 'react-day-picker'
@@ -33,7 +34,7 @@ const getFormattedTime = (time: number | null) => {
 
 const getFrequencyOptions = (date?: Date) => {
   const weeklyDescription = date ? format(date, '\'on\' EEEE') : ''
-  const monthlyDescription = date ? format(date, '\'on\' do') : ''
+  const monthlyDescription = date ? format(date, '\'on the\' do') : ''
   const yearlyDescription = date ? format(date, '\'on\' MMM do') : ''
 
   return [
@@ -92,6 +93,12 @@ export const Task: React.FC<Props> = ({ task }) => {
       await utils.task.getAll.invalidate()
     },
   })
+  const { mutate: deleteTaskMutate } = api.task.delete.useMutation({
+    onSuccess: async () => {
+      await utils.task.getAll.invalidate()
+      router.push('/planner')
+    },
+  })
   const debouncedEstimatedTime = useDebounce(estimatedTime, 400)
   const debouncedTitle = useDebounce(title, 400)
   const debouncedNotes = useDebounce(notes, 400)
@@ -103,7 +110,7 @@ export const Task: React.FC<Props> = ({ task }) => {
         const scrollHeight = node.scrollHeight
         node.style.height = scrollHeight + 'px'
       }
-      },
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [notes],
   )
@@ -112,6 +119,10 @@ export const Task: React.FC<Props> = ({ task }) => {
     task.date === 'braindump'
       ? undefined
       : parse(task.date, 'dd/MM/yyyy', new Date())
+
+  const handleDeleteTask = () => {
+    deleteTaskMutate({ id: task.id })
+  }
 
   const handleOnCheckedChange = (value: Checkbox.CheckedState) => {
     completeTaskMutate({
@@ -250,11 +261,19 @@ export const Task: React.FC<Props> = ({ task }) => {
 
         <Dialog.Content className="fixed left-1/2 top-1/2 w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-neutral-100 p-6 outline-none">
           <Dialog.Title asChild>
-            <input
-              className="mb-4 w-full bg-transparent text-2xl font-medium outline-none"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
+            <div className="mb-4 flex items-center gap-2">
+              <input
+                className="w-full bg-transparent text-2xl font-medium outline-none"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+              <button
+                className="flex items-center justify-center"
+                onClick={() => handleDeleteTask()}
+              >
+                <LucideTrash className="size-3" />
+              </button>
+            </div>
           </Dialog.Title>
 
           <div className="flex flex-col gap-2">

@@ -105,4 +105,31 @@ export const taskRouter = createTRPCRouter({
         },
       })
     }),
+  delete: protectedProcedure
+    .input(
+      z.object({
+        id: z.string().uuid(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.$transaction([
+        ctx.db.task.delete({
+          where: {
+            id: input.id,
+            userId: ctx.userId,
+          },
+        }),
+        ctx.db.subtask.deleteMany({
+          where: {
+            taskId: input.id,
+          },
+        }),
+        ctx.db.taskCompletion.deleteMany({
+          where: {
+            taskOrSubtaskId: input.id,
+            userId: ctx.userId,
+          },
+        }),
+      ])
+    }),
 })
