@@ -66,7 +66,7 @@ export const Planner: React.FC<Props> = ({
   scrollContainerRef,
 }) => {
   const { data: completions } = api.task.getCompletions.useQuery()
-  const { data } = api.task.getAll.useQuery()
+  const { data: tasks } = api.task.getAll.useQuery()
 
   return (
     <div
@@ -78,10 +78,10 @@ export const Planner: React.FC<Props> = ({
         <DayBlock
           key={format(date, 'dd/MM/yyyy')}
           date={date}
-          tasks={getTasksByDate(data ?? [], completions ?? [], date)}
+          tasks={getTasksByDate(tasks ?? [], completions ?? [], date)}
         />
       ))}
-      {data?.map((task) => <TaskDialog task={task} key={task.id} />)}
+      {tasks?.map((task) => <TaskDialog task={task} key={task.id} />)}
     </div>
   )
 }

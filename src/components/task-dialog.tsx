@@ -18,19 +18,11 @@ import { useCallback, useEffect, useState } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Frequency } from '~/lib/frequency'
+import { getFormattedEstimatedTime } from '~/lib/get-formatted-estimated-time'
 
 type Props = {
   task: RouterOutputs['task']['getAll'][number] & { completed?: boolean };
 };
-
-const getFormattedTime = (time: number | null) => {
-  if (time === null) return '--:--'
-
-  const hours = Math.floor(time / 60)
-  const minutes = time % 60
-
-  return `${hours < 10 ? '0' : ''}${hours}:${minutes < 10 ? '0' : ''}${minutes}`
-}
 
 const getFrequencyOptions = (date?: Date) => {
   const weeklyDescription = date ? format(date, '\'on\' EEEE') : ''
@@ -80,7 +72,7 @@ export const TaskDialog: React.FC<Props> = ({ task }) => {
   const [title, setTitle] = useState(task.title)
   const [notes, setNotes] = useState(task.notes)
   const [estimatedTime, setEstimatedTime] = useState(
-    getFormattedTime(task.estimatedTime),
+    getFormattedEstimatedTime(task.estimatedTime),
   )
   const utils = api.useUtils()
   const { mutate: updateTaskMutate } = api.task.update.useMutation({
@@ -170,7 +162,7 @@ export const TaskDialog: React.FC<Props> = ({ task }) => {
       },
       {
         onSuccess: (data) => {
-          setEstimatedTime(getFormattedTime(data.estimatedTime))
+          setEstimatedTime(getFormattedEstimatedTime(data.estimatedTime))
         },
       },
     )

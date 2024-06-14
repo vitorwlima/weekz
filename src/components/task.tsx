@@ -7,20 +7,12 @@ import { api, type RouterOutputs } from '~/trpc/react'
 import 'react-day-picker/dist/style.css'
 import { format } from 'date-fns'
 import { useRouter } from 'next/navigation'
+import { getFormattedEstimatedTime } from '~/lib/get-formatted-estimated-time'
 
 type Props = {
   task: RouterOutputs['task']['getAll'][number] & { completed?: boolean };
   date: Date | 'braindump';
 };
-
-const getFormattedTime = (time: number | null) => {
-  if (time === null) return '--:--'
-
-  const hours = Math.floor(time / 60)
-  const minutes = time % 60
-
-  return `${hours < 10 ? '0' : ''}${hours}:${minutes < 10 ? '0' : ''}${minutes}`
-}
 
 export const Task: React.FC<Props> = ({ task, date }) => {
   const router = useRouter()
@@ -70,7 +62,7 @@ export const Task: React.FC<Props> = ({ task, date }) => {
           <p className="font-light">{task.title}</p>
         </div>
         <p className="min-w-fit rounded-md bg-neutral-200/50 p-1 text-xs font-light tracking-tighter text-neutral-500">
-          {getFormattedTime(task.estimatedTime)}
+          {getFormattedEstimatedTime(task.estimatedTime)}
         </p>
       </header>
     </li>
