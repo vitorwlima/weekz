@@ -24,7 +24,7 @@ export const DayBlock: React.FC<Props> = ({ date, tasks }) => {
 
       <ul className="mt-2 flex h-full flex-col gap-2 overflow-y-scroll">
         {tasks.map((task) => (
-          <Task key={task.id} task={task} />
+          <Task key={`${task.id}-${format(date, 'dd/MM/yyyy')}`} task={task} date={date} />
         ))}
       </ul>
     </div>

@@ -83,7 +83,7 @@ export const Sidebar = () => {
 
       <ul className="mt-2 flex h-full flex-col gap-2 overflow-y-scroll">
         {tasks.map((task) => (
-          <Task key={task.id} task={task} />
+          <Task key={task.id} task={task} date="braindump" />
         ))}
       </ul>
     </div>

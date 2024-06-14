@@ -1,14 +1,58 @@
 'use client'
 
-import { format } from 'date-fns'
+import { format, isWeekend, getDay, parse, getDate, getMonth } from 'date-fns'
 import { DayBlock } from './day-block'
-import { api } from '~/trpc/react'
+import { type RouterOutputs, api } from '~/trpc/react'
+import { TaskDialog } from './task-dialog'
+
+type Task = RouterOutputs['task']['getAll'][number];
+type Completion = RouterOutputs['task']['getCompletions'][number];
 
 type Props = {
   dates: Date[];
   handleScroll: () => void;
   scrollContainerRef: React.RefObject<HTMLDivElement>;
 };
+
+const getTasksByFrequency = (tasks: Task[], date: Date) => {
+  return tasks.filter((task) => {
+    const taskDate = parse(task.date, 'dd/MM/yyyy', new Date())
+
+    if (task.date === format(date, 'dd/MM/yyyy')) return true
+    if (task.frequency === 'daily') return true
+    if (task.frequency === 'weekdays' && !isWeekend(date)) return true
+    if (task.frequency === 'weekends' && isWeekend(date)) return true
+    if (task.frequency === 'weekly' && getDay(date) === getDay(taskDate))
+      return true
+    if (task.frequency === 'monthly' && getDate(date) === getDate(taskDate))
+      return true
+    if (
+      task.frequency === 'yearly' &&
+      getDate(date) === getDate(taskDate) &&
+      getMonth(date) === getMonth(taskDate)
+    )
+      return true
+  })
+}
+
+const getTasksByDate = (
+  tasks: Task[],
+  completions: Completion[],
+  date: Date,
+) => {
+  return getTasksByFrequency(tasks, date).map((task) => {
+    const completion = completions.find(
+      (completion) =>
+        completion.taskOrSubtaskId === task.id &&
+        completion.date === format(date, 'dd/MM/yyyy'),
+    )
+
+    return {
+      ...task,
+      completed: completion?.completed ?? false,
+    }
+  })
+}
 
 export const Planner: React.FC<Props> = ({
   dates,
@@ -17,17 +61,6 @@ export const Planner: React.FC<Props> = ({
 }) => {
   const { data: completions } = api.task.getCompletions.useQuery()
   const { data } = api.task.getAll.useQuery()
-
-  const tasks = data?.map((task) => {
-    const completion = completions?.find(
-      (c) => c.taskOrSubtaskId === task.id && c.date === task.date,
-    )
-
-    return {
-      ...task,
-      completed: completion?.completed ?? false,
-    }
-  })
 
   return (
     <div
@@ -39,12 +72,10 @@ export const Planner: React.FC<Props> = ({
         <DayBlock
           key={format(date, 'dd/MM/yyyy')}
           date={date}
-          tasks={
-            tasks?.filter((task) => task.date === format(date, 'dd/MM/yyyy')) ??
-            []
-          }
+          tasks={getTasksByDate(data ?? [], completions ?? [], date)}
         />
       ))}
+      {data?.map((task) => <TaskDialog task={task} key={task.id} />)}
     </div>
   )
 }
