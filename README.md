@@ -13,10 +13,10 @@ This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3
   - [x] date
   - [x] estimated time
   - [x] frequency
-  - [] notes
+  - [x] notes
 - [] On right click, show context menu with delete and edit options:
   - [] edit will open same dialog
-  - [] delete will delete the task if frequency is once or date is braindump - otherwise show dialog asking if you want to delete
+  - [] delete will delete the task if frequency is once or date is braindump - otherwise, if there are completions, show dialog asking if you want to delete making it clear that deletions will also be deleted
 - [] Add logic to show correct tasks based on date and frequency
 - [] Add dragging and dropping tasks
 - [] Improve UX/UI
