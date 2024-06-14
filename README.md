@@ -12,7 +12,7 @@ This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3
   - [x] title
   - [x] date
   - [x] estimated time
-  - [] frequency
+  - [x] frequency
   - [] notes
 - [] On right click, show context menu with delete and edit options:
   - [] edit will open same dialog
@@ -29,3 +29,4 @@ This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3
 - [] Add subtasks
 - [] Implement task search
 - [] Optimize queries and invalidations
+- [] Make it fully accessible / keyboard friendly

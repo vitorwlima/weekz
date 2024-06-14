@@ -13,7 +13,7 @@ import { api, type RouterOutputs } from '~/trpc/react'
 import { DayPicker } from 'react-day-picker'
 import 'react-day-picker/dist/style.css'
 import * as Popover from '@radix-ui/react-popover'
-import { format, parse } from 'date-fns'
+import { format, parse, isWeekend } from 'date-fns'
 import { useEffect, useRef, useState } from 'react'
 import { useAutosizeTextArea } from '~/lib/use-autosize-textarea'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -30,6 +30,47 @@ const getFormattedTime = (time: number | null) => {
   const minutes = time % 60
 
   return `${hours < 10 ? '0' : ''}${hours}:${minutes < 10 ? '0' : ''}${minutes}`
+}
+
+const getFrequencyOptions = (date?: Date) => {
+  const weeklyDescription = date ? format(date, '\'on\' EEEE') : ''
+  const monthlyDescription = date ? format(date, '\'on\' do') : ''
+  const yearlyDescription = date ? format(date, '\'on\' MMM do') : ''
+
+  return [
+    { label: 'Does not repeat', value: 'once', visible: true },
+    { label: 'Every day', value: 'daily', visible: true },
+    {
+      label: 'Every weekday',
+      value: 'weekdays',
+      description: 'Mon - Fri',
+      visible: !!date && !isWeekend(date),
+    },
+    {
+      label: 'Every weekend day',
+      value: 'weekends',
+      description: 'Sat & Sun',
+      visible: !!date && isWeekend(date),
+    },
+    {
+      label: 'Every week',
+      value: 'weekly',
+      description: weeklyDescription,
+      visible: true,
+    },
+    {
+      label: 'Every month',
+      value: 'monthly',
+      description: monthlyDescription,
+      visible: true,
+    },
+    {
+      label: 'Every year',
+      value: 'yearly',
+      description: yearlyDescription,
+      visible: true,
+    },
+  ]
 }
 
 export const Task: React.FC<Props> = ({ task }) => {
@@ -88,6 +129,18 @@ export const Task: React.FC<Props> = ({ task }) => {
     return router.push('/planner')
   }
 
+  const onFrequencyChange = (frequency: string) => {
+    if (frequency === task.frequency) return
+
+    updateTaskMutate({
+      id: task.id,
+      title: task.title,
+      frequency,
+      estimatedTime: task.estimatedTime,
+      date: task.date,
+    })
+  }
+
   useEffect(() => {
     const estimatedTime = debouncedEstimatedTime
       ? debouncedEstimatedTime
@@ -113,19 +166,17 @@ export const Task: React.FC<Props> = ({ task }) => {
       },
     )
   }, [debouncedEstimatedTime, task, updateTaskMutate])
- 
+
   useEffect(() => {
     if (debouncedTitle === task.title) return
 
-    updateTaskMutate(
-      {
-        id: task.id,
-        title: debouncedTitle,
-        frequency: task.frequency,
-        estimatedTime: task.estimatedTime,
-        date: task.date,
-      }
-    )
+    updateTaskMutate({
+      id: task.id,
+      title: debouncedTitle,
+      frequency: task.frequency,
+      estimatedTime: task.estimatedTime,
+      date: task.date,
+    })
   }, [debouncedTitle, task, updateTaskMutate])
 
   return (
@@ -175,15 +226,15 @@ export const Task: React.FC<Props> = ({ task }) => {
         <Dialog.Content className="fixed left-1/2 top-1/2 w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-neutral-100 p-6 outline-none">
           <Dialog.Title asChild>
             <input
-              className="mb-4 bg-transparent text-2xl font-medium outline-none w-full"
+              className="mb-4 w-full bg-transparent text-2xl font-medium outline-none"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
           </Dialog.Title>
 
-          <form className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2">
             <div className="grid grid-cols-3">
-              <label className="col-span-1 flex items-center gap-1 text-sm text-neutral-500">
+              <label className="col-span-1 flex items-center gap-2 text-sm text-neutral-500">
                 <LucideCalendar className="size-4" />
                 <p>Task date</p>
               </label>
@@ -208,7 +259,7 @@ export const Task: React.FC<Props> = ({ task }) => {
             </div>
 
             <div className="grid grid-cols-3">
-              <label className="col-span-1 flex items-center gap-1 text-sm text-neutral-500">
+              <label className="col-span-1 flex items-center gap-2 text-sm text-neutral-500">
                 <LucideClock className="size-4" />
                 <p>Estimated time</p>
               </label>
@@ -222,14 +273,48 @@ export const Task: React.FC<Props> = ({ task }) => {
             </div>
 
             <div className="grid grid-cols-3">
-              <label className="col-span-1 flex items-center gap-1 text-sm text-neutral-500">
+              <label className="col-span-1 flex items-center gap-2 text-sm text-neutral-500">
                 <LucideRepeat className="size-4" />
                 <p>Repeats</p>
               </label>
 
-              <p className="w-fit cursor-pointer rounded-xl bg-neutral-300/80 px-2 py-0.5 hover:bg-neutral-300/50">
-                No repeat
-              </p>
+              <Popover.Root>
+                <Popover.Trigger asChild>
+                  <button className="w-fit rounded-xl bg-neutral-300/80 px-2 py-0.5 outline-none hover:bg-neutral-300/50">
+                    {getFrequencyOptions(date).find(option => option.value === task.frequency)?.label}
+                  </button>
+                </Popover.Trigger>
+                <Popover.Content align="start" asChild>
+                  <div className="mt-2 flex flex-col gap-0.5 rounded-xl bg-neutral-200 p-2">
+                    {getFrequencyOptions(date).map((option) => (
+                      <Popover.Close
+                        key={option.value}
+                        className={clsx(!option.visible && 'hidden')}
+                        asChild
+                      >
+                        <button
+                          className="flex w-full items-center gap-2 rounded-xl px-2 py-1 text-left hover:bg-neutral-100/60"
+                          onClick={() => onFrequencyChange(option.value)}
+                        >
+                          {task.frequency === option.value ? (
+                            <LucideCheck className="size-3" />
+                          ) : (
+                            <div className="size-3" />
+                          )}
+                          <div className="flex gap-1">
+                            <span className="text-base">{option.label}</span>
+                            <span className="text-xs leading-6 text-neutral-600">
+                              {option.description
+                                ? `(${option.description})`
+                                : ''}
+                            </span>
+                          </div>
+                        </button>
+                      </Popover.Close>
+                    ))}
+                  </div>
+                </Popover.Content>
+              </Popover.Root>
             </div>
 
             <div className="my-4 h-0.5 w-full rounded-full bg-neutral-200" />
@@ -245,7 +330,7 @@ export const Task: React.FC<Props> = ({ task }) => {
                 value={notes}
               />
             </div>
-          </form>
+          </div>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
