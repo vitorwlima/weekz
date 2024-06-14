@@ -4,6 +4,7 @@ import { format, isWeekend, getDay, parse, getDate, getMonth } from 'date-fns'
 import { DayBlock } from './day-block'
 import { type RouterOutputs, api } from '~/trpc/react'
 import { TaskDialog } from './task-dialog'
+import { Frequency } from '~/lib/frequency'
 
 type Task = RouterOutputs['task']['getAll'][number];
 type Completion = RouterOutputs['task']['getCompletions'][number];
@@ -18,16 +19,21 @@ const getTasksByFrequency = (tasks: Task[], date: Date) => {
   return tasks.filter((task) => {
     const taskDate = parse(task.date, 'dd/MM/yyyy', new Date())
 
+    const taskFrequency = task.frequency as Frequency
+
     if (task.date === format(date, 'dd/MM/yyyy')) return true
-    if (task.frequency === 'daily') return true
-    if (task.frequency === 'weekdays' && !isWeekend(date)) return true
-    if (task.frequency === 'weekends' && isWeekend(date)) return true
-    if (task.frequency === 'weekly' && getDay(date) === getDay(taskDate))
-      return true
-    if (task.frequency === 'monthly' && getDate(date) === getDate(taskDate))
+    if (taskFrequency === Frequency.DAILY) return true
+    if (taskFrequency === Frequency.WEEKDAYS && !isWeekend(date)) return true
+    if (taskFrequency === Frequency.WEEKENDS && isWeekend(date)) return true
+    if (taskFrequency === Frequency.WEEKLY && getDay(date) === getDay(taskDate))
       return true
     if (
-      task.frequency === 'yearly' &&
+      taskFrequency === Frequency.MONTHLY &&
+      getDate(date) === getDate(taskDate)
+    )
+      return true
+    if (
+      taskFrequency === Frequency.YEARLY &&
       getDate(date) === getDate(taskDate) &&
       getMonth(date) === getMonth(taskDate)
     )

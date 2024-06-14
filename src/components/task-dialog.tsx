@@ -17,6 +17,7 @@ import { format, parse, isWeekend } from 'date-fns'
 import { useCallback, useEffect, useState } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { Frequency } from '~/lib/frequency'
 
 type Props = {
   task: RouterOutputs['task']['getAll'][number] & { completed?: boolean };
@@ -37,35 +38,35 @@ const getFrequencyOptions = (date?: Date) => {
   const yearlyDescription = date ? format(date, '\'on\' MMM do') : ''
 
   return [
-    { label: 'Does not repeat', value: 'once', visible: true },
-    { label: 'Every day', value: 'daily', visible: true },
+    { label: 'Does not repeat', value: Frequency.NO_REPEAT, visible: true },
+    { label: 'Every day', value: Frequency.DAILY, visible: true },
     {
       label: 'Every weekday',
-      value: 'weekdays',
+      value: Frequency.WEEKDAYS,
       description: 'Mon - Fri',
       visible: !!date && !isWeekend(date),
     },
     {
       label: 'Every weekend day',
-      value: 'weekends',
+      value: Frequency.WEEKENDS,
       description: 'Sat & Sun',
       visible: !!date && isWeekend(date),
     },
     {
       label: 'Every week',
-      value: 'weekly',
+      value: Frequency.WEEKLY,
       description: weeklyDescription,
       visible: true,
     },
     {
       label: 'Every month',
-      value: 'monthly',
+      value: Frequency.MONTHLY,
       description: monthlyDescription,
       visible: true,
     },
     {
       label: 'Every year',
-      value: 'yearly',
+      value: Frequency.YEARLY,
       description: yearlyDescription,
       visible: true,
     },
@@ -274,7 +275,8 @@ export const TaskDialog: React.FC<Props> = ({ task }) => {
                   <button className="w-fit rounded-xl bg-neutral-300/80 px-2 py-0.5 outline-none hover:bg-neutral-300/50">
                     {
                       getFrequencyOptions(taskDateObject).find(
-                        (option) => option.value === task.frequency,
+                        (option) =>
+                          option.value === (task.frequency as Frequency),
                       )?.label
                     }
                   </button>
@@ -291,7 +293,7 @@ export const TaskDialog: React.FC<Props> = ({ task }) => {
                           className="flex w-full items-center gap-2 rounded-xl px-2 py-1 text-left hover:bg-neutral-100/60"
                           onClick={() => onFrequencyChange(option.value)}
                         >
-                          {task.frequency === option.value ? (
+                          {(task.frequency as Frequency) === option.value ? (
                             <LucideCheck className="size-3" />
                           ) : (
                             <div className="size-3" />

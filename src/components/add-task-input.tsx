@@ -4,6 +4,7 @@ import clsx from 'clsx'
 import { LucidePlusCircle as LucidePlus } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { z } from 'zod'
+import { Frequency } from '~/lib/frequency'
 import { useHandleOutsideClick } from '~/lib/use-handle-outside-click'
 import { useZodForm } from '~/lib/use-zod-form'
 import { api } from '~/trpc/react'
@@ -44,7 +45,7 @@ export const AddTaskInput: React.FC<Props> = ({ isBrainDumpTask, date }) => {
       mutate({
         title: data.title,
         date: isBrainDumpTask ? 'braindump' : date,
-        frequency: 'once',
+        frequency: Frequency.NO_REPEAT,
         estimatedTime,
         notes: '',
       })
