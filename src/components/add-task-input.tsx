@@ -82,7 +82,7 @@ export const AddTaskInput: React.FC<Props> = ({ isBrainDumpTask, date }) => {
         {...register('estimatedTime')} // TODO: on enter here submit
         type="time"
         className={clsx(
-          'absolute right-1.5 top-0 w-12 translate-y-[5px] rounded-lg border border-neutral-300 bg-neutral-50 p-1 text-xs outline-none placeholder:font-light placeholder:text-neutral-500',
+          'absolute right-1.5 top-0 w-fit translate-y-[5px] rounded-lg border border-neutral-300 bg-neutral-50 p-1 text-xs outline-none placeholder:font-light placeholder:text-neutral-500',
           shouldShowTime ? 'block' : 'hidden',
         )}
       />
