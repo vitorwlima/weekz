@@ -3,8 +3,8 @@
 import { format, isWeekend, getDay, parse, getDate, getMonth } from 'date-fns'
 import { DayBlock } from './day-block'
 import { type RouterOutputs, api } from '~/trpc/react'
-import { TaskDialog } from './task-dialog'
 import { Frequency } from '~/lib/frequency'
+import { TaskDialog } from './task-dialog.ts'
 
 type Task = RouterOutputs['task']['getAll'][number];
 type Completion = RouterOutputs['task']['getCompletions'][number];
