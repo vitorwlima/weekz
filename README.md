@@ -24,6 +24,7 @@ This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3
 
 - [] Fix prettier with eslint
 - [] Add auto-sort imports
-= [] Add lefthook (https://evilmartians.com/opensource/lefthook)
+- [] Add lefthook (https://evilmartians.com/opensource/lefthook)
 - [] Add subtasks
 - [] Implement task search
+- [] Optimize queries and invalidations
