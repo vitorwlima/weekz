@@ -46,6 +46,7 @@ export const AddTaskInput: React.FC<Props> = ({ isBrainDumpTask, date }) => {
         date: isBrainDumpTask ? 'braindump' : date,
         frequency: 'once',
         estimatedTime,
+        notes: '',
       })
     },
   })

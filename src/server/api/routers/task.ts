@@ -64,6 +64,7 @@ export const taskRouter = createTRPCRouter({
         date: z.string(),
         estimatedTime: z.number().optional(),
         frequency: z.string(),
+        notes: z.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -74,6 +75,7 @@ export const taskRouter = createTRPCRouter({
           date: input.date,
           estimatedTime: input.estimatedTime,
           frequency: input.frequency,
+          notes: input.notes,
         },
       })
     }),
@@ -85,6 +87,7 @@ export const taskRouter = createTRPCRouter({
         date: z.string(),
         estimatedTime: z.number().optional().nullable(),
         frequency: z.string(),
+        notes: z.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -98,6 +101,7 @@ export const taskRouter = createTRPCRouter({
           date: input.date,
           estimatedTime: input.estimatedTime,
           frequency: input.frequency,
+          notes: input.notes,
         },
       })
     }),

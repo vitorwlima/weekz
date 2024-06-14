@@ -17,6 +17,7 @@ model Task {
     date          String
     estimatedTime Int?   @map("estimated_time")
     frequency     String
+    notes         String
 
     subtasks Subtask[]
 

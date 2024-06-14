@@ -14,8 +14,7 @@ import { DayPicker } from 'react-day-picker'
 import 'react-day-picker/dist/style.css'
 import * as Popover from '@radix-ui/react-popover'
 import { format, parse, isWeekend } from 'date-fns'
-import { useEffect, useRef, useState } from 'react'
-import { useAutosizeTextArea } from '~/lib/use-autosize-textarea'
+import { useCallback, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
 
@@ -77,9 +76,8 @@ export const Task: React.FC<Props> = ({ task }) => {
   const searchParams = useSearchParams()
   const router = useRouter()
   const selectedTaskId = searchParams.get('task')
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [title, setTitle] = useState(task.title)
-  const [notes, setNotes] = useState('')
+  const [notes, setNotes] = useState(task.notes)
   const [estimatedTime, setEstimatedTime] = useState(
     getFormattedTime(task.estimatedTime),
   )
@@ -96,8 +94,19 @@ export const Task: React.FC<Props> = ({ task }) => {
   })
   const debouncedEstimatedTime = useDebounce(estimatedTime, 400)
   const debouncedTitle = useDebounce(title, 400)
+  const debouncedNotes = useDebounce(notes, 400)
 
-  useAutosizeTextArea(textareaRef.current, notes)
+  const textareaRef = useCallback(
+    (node: HTMLTextAreaElement) => {
+      if (node) {
+        node.style.height = '0px'
+        const scrollHeight = node.scrollHeight
+        node.style.height = scrollHeight + 'px'
+      }
+      },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [notes],
+  )
 
   const date =
     task.date === 'braindump'
@@ -121,6 +130,7 @@ export const Task: React.FC<Props> = ({ task }) => {
       frequency: task.frequency,
       estimatedTime: task.estimatedTime ?? undefined,
       date: format(date, 'dd/MM/yyyy'),
+      notes: task.notes,
     })
   }
 
@@ -138,6 +148,7 @@ export const Task: React.FC<Props> = ({ task }) => {
       frequency,
       estimatedTime: task.estimatedTime,
       date: task.date,
+      notes: task.notes,
     })
   }
 
@@ -158,6 +169,7 @@ export const Task: React.FC<Props> = ({ task }) => {
         frequency: task.frequency,
         estimatedTime,
         date: task.date,
+        notes: task.notes,
       },
       {
         onSuccess: (data) => {
@@ -173,15 +185,28 @@ export const Task: React.FC<Props> = ({ task }) => {
     updateTaskMutate({
       id: task.id,
       title: debouncedTitle,
-      frequency: task.frequency,
       estimatedTime: task.estimatedTime,
       date: task.date,
+      frequency: task.frequency,
+      notes: task.notes,
     })
   }, [debouncedTitle, task, updateTaskMutate])
 
+  useEffect(() => {
+    if (debouncedNotes === task.notes) return
+
+    updateTaskMutate({
+      id: task.id,
+      title: task.title,
+      estimatedTime: task.estimatedTime,
+      date: task.date,
+      frequency: task.frequency,
+      notes: debouncedNotes,
+    })
+  }, [debouncedNotes, task, updateTaskMutate])
+
   return (
     <Dialog.Root
-      key={task.id}
       open={selectedTaskId === task.id}
       onOpenChange={onDialogOpenChange}
     >
@@ -281,7 +306,11 @@ export const Task: React.FC<Props> = ({ task }) => {
               <Popover.Root>
                 <Popover.Trigger asChild>
                   <button className="w-fit rounded-xl bg-neutral-300/80 px-2 py-0.5 outline-none hover:bg-neutral-300/50">
-                    {getFrequencyOptions(date).find(option => option.value === task.frequency)?.label}
+                    {
+                      getFrequencyOptions(date).find(
+                        (option) => option.value === task.frequency,
+                      )?.label
+                    }
                   </button>
                 </Popover.Trigger>
                 <Popover.Content align="start" asChild>
