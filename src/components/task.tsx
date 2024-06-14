@@ -37,6 +37,7 @@ export const Task: React.FC<Props> = ({ task }) => {
   const router = useRouter()
   const selectedTaskId = searchParams.get('task')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const [title, setTitle] = useState(task.title)
   const [notes, setNotes] = useState('')
   const [estimatedTime, setEstimatedTime] = useState(
     getFormattedTime(task.estimatedTime),
@@ -53,6 +54,7 @@ export const Task: React.FC<Props> = ({ task }) => {
     },
   })
   const debouncedEstimatedTime = useDebounce(estimatedTime, 400)
+  const debouncedTitle = useDebounce(title, 400)
 
   useAutosizeTextArea(textareaRef.current, notes)
 
@@ -111,6 +113,20 @@ export const Task: React.FC<Props> = ({ task }) => {
       },
     )
   }, [debouncedEstimatedTime, task, updateTaskMutate])
+ 
+  useEffect(() => {
+    if (debouncedTitle === task.title) return
+
+    updateTaskMutate(
+      {
+        id: task.id,
+        title: debouncedTitle,
+        frequency: task.frequency,
+        estimatedTime: task.estimatedTime,
+        date: task.date,
+      }
+    )
+  }, [debouncedTitle, task, updateTaskMutate])
 
   return (
     <Dialog.Root
@@ -157,8 +173,12 @@ export const Task: React.FC<Props> = ({ task }) => {
         <Dialog.Overlay className="fixed inset-0 bg-neutral-900/60" />
 
         <Dialog.Content className="fixed left-1/2 top-1/2 w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-neutral-100 p-6 outline-none">
-          <Dialog.Title className="mb-4 text-2xl font-medium">
-            {task.title}
+          <Dialog.Title asChild>
+            <input
+              className="mb-4 bg-transparent text-2xl font-medium outline-none w-full"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
           </Dialog.Title>
 
           <form className="flex flex-col gap-2">

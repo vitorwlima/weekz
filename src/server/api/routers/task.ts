@@ -8,6 +8,9 @@ export const taskRouter = createTRPCRouter({
       where: {
         userId: ctx.userId,
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
     })
   }),
   getCompletions: protectedProcedure.query(async ({ ctx }) => {
