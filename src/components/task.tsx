@@ -14,8 +14,10 @@ import { DayPicker } from 'react-day-picker'
 import 'react-day-picker/dist/style.css'
 import * as Popover from '@radix-ui/react-popover'
 import { format, parse } from 'date-fns'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useAutosizeTextArea } from '~/lib/use-autosize-textarea'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useDebounce } from '@uidotdev/usehooks'
 
 type Props = {
   task: RouterOutputs['task']['getAll'][number] & { completed?: boolean };
@@ -31,14 +33,26 @@ const getFormattedTime = (time: number | null) => {
 }
 
 export const Task: React.FC<Props> = ({ task }) => {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const selectedTaskId = searchParams.get('task')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [notes, setNotes] = useState('')
+  const [estimatedTime, setEstimatedTime] = useState(
+    getFormattedTime(task.estimatedTime),
+  )
   const utils = api.useUtils()
-  const { mutate } = api.task.completeTask.useMutation({
+  const { mutate: completeTaskMutate } = api.task.completeTask.useMutation({
     onSuccess: async () => {
       await utils.task.getCompletions.invalidate()
     },
   })
+  const { mutate: updateTaskMutate } = api.task.update.useMutation({
+    onSuccess: async () => {
+      await utils.task.getAll.invalidate()
+    },
+  })
+  const debouncedEstimatedTime = useDebounce(estimatedTime, 400)
 
   useAutosizeTextArea(textareaRef.current, notes)
 
@@ -48,19 +62,66 @@ export const Task: React.FC<Props> = ({ task }) => {
       : parse(task.date, 'dd/MM/yyyy', new Date())
 
   const handleOnCheckedChange = (value: Checkbox.CheckedState) => {
-    mutate({
+    completeTaskMutate({
       id: task.id,
       date: task.date,
       completed: value as boolean,
     })
   }
 
+  const handleDateChange = (date?: Date) => {
+    if (date === undefined) return
+
+    updateTaskMutate({
+      id: task.id,
+      title: task.title,
+      frequency: task.frequency,
+      estimatedTime: task.estimatedTime ?? undefined,
+      date: format(date, 'dd/MM/yyyy'),
+    })
+  }
+
+  const onDialogOpenChange = (value: boolean) => {
+    if (value) return router.push(`/planner?task=${task.id}`)
+    return router.push('/planner')
+  }
+
+  useEffect(() => {
+    const estimatedTime = debouncedEstimatedTime
+      ? debouncedEstimatedTime
+          .split(':')
+          .reduce((acc, cur) => acc * 60 + Number(cur), 0)
+      : null
+
+    if (estimatedTime === task.estimatedTime || Number.isNaN(estimatedTime))
+      return
+
+    updateTaskMutate(
+      {
+        id: task.id,
+        title: task.title,
+        frequency: task.frequency,
+        estimatedTime,
+        date: task.date,
+      },
+      {
+        onSuccess: (data) => {
+          setEstimatedTime(getFormattedTime(data.estimatedTime))
+        },
+      },
+    )
+  }, [debouncedEstimatedTime, task, updateTaskMutate])
+
   return (
-    <Dialog.Root>
+    <Dialog.Root
+      key={task.id}
+      open={selectedTaskId === task.id}
+      onOpenChange={onDialogOpenChange}
+    >
       <Dialog.Trigger asChild>
         <li
-          key={task.id}
           className="cursor-pointer rounded-xl border border-neutral-300 bg-neutral-50 p-4"
+          onClick={() => router.push(`/planner?task=${task.id}`)}
         >
           <header className="flex items-start justify-between gap-2">
             <div className="flex items-start gap-2">
@@ -119,7 +180,7 @@ export const Task: React.FC<Props> = ({ task }) => {
                   <DayPicker
                     mode="single"
                     selected={date}
-                    onSelect={(date) => console.log({ date })}
+                    onSelect={handleDateChange}
                     className="rounded-lg bg-neutral-50 p-2"
                   />
                 </Popover.Content>
@@ -135,6 +196,8 @@ export const Task: React.FC<Props> = ({ task }) => {
               <input
                 type="time"
                 className="w-fit cursor-pointer rounded-xl bg-neutral-300/80 px-2 py-0.5 outline-none placeholder:font-light placeholder:text-neutral-500 hover:bg-neutral-300/50"
+                value={estimatedTime}
+                onChange={(e) => setEstimatedTime(e.target.value)}
               />
             </div>
 

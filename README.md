@@ -8,9 +8,10 @@ This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3
 
 [x] Add correct date on dashboard intro
 - [x] Check vertical scrolling on task list per day (test with many tasks)
-- [] On left click, go to task dialog to be able to delete and edit:
+- [x] On left click, go to task dialog to be able to delete and edit:
   - [] title
-  - [] estimated time
+  - [x] date
+  - [x] estimated time
   - [] frequency
 - [] On right click, show context menu with delete and edit options:
   - [] edit will open same dialog
