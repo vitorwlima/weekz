@@ -5,7 +5,9 @@ import { getTodayAndLastPlusNextWeekDays } from './get-today-and-last-plus-next-
 export const useGetTasks = () => {
   const dates = getTodayAndLastPlusNextWeekDays()
 
-  return api.task.getAll.useQuery({
+  const { data } = api.task.getAll.useQuery({
     dates: dates.map((date) => format(date, 'dd/MM/yyyy')),
   })
+
+  return data?.sort((a, b) => b.order - a.order) ?? []
 }

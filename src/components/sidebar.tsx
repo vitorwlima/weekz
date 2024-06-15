@@ -16,7 +16,7 @@ import { SortableContext, useSortable } from '@dnd-kit/sortable'
 import { useGetTasks } from '~/lib/useGetTasks'
 
 export const Sidebar = () => {
-  const { data } = useGetTasks()
+  const data = useGetTasks()
   const pathname = usePathname()
   const { setNodeRef } = useSortable({
     id: 'braindump',
@@ -88,7 +88,7 @@ export const Sidebar = () => {
         <AddTaskInput isBrainDumpTask />
       </div>
 
-      <SortableContext id="braindump" items={tasks}>
+      <SortableContext id="braindump" items={tasks.map((task) => task.id)}>
         <ul
           className="mt-2 flex h-full flex-col gap-2 overflow-y-scroll"
           ref={setNodeRef}

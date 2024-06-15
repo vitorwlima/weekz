@@ -30,7 +30,10 @@ export const DayBlock: React.FC<Props> = ({ date, tasks }) => {
 
       <AddTaskInput isBrainDumpTask={false} date={format(date, 'dd/MM/yyyy')} />
 
-      <SortableContext id={format(date, 'dd/MM/yyyy')} items={tasks}>
+      <SortableContext
+        id={format(date, 'dd/MM/yyyy')}
+        items={tasks.map((task) => task.id)}
+      >
         <ul
           className="mt-2 flex h-full flex-col gap-2 overflow-y-scroll"
           ref={setNodeRef}

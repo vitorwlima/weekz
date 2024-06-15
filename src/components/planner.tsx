@@ -18,7 +18,7 @@ export const Planner: React.FC<Props> = ({
 }) => {
   const dates = getTodayAndLastPlusNextWeekDays()
   const utils = api.useUtils()
-  const { data: tasks } = useGetTasks()
+  const tasks = useGetTasks()
   const { mutate } = api.task.createRepeatingTasks.useMutation({
     onSuccess: async () => {
       await utils.task.getAll.invalidate()
