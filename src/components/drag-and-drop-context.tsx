@@ -12,6 +12,7 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Task } from '~/components/task'
 import { getTodayAndLastPlusNextWeekDays } from '~/lib/get-today-and-last-plus-next-week-days'
+import { useGetTasks } from '~/lib/useGetTasks'
 import { type RouterOutputs, api } from '~/trpc/react'
 
 type DraggingData = {
@@ -26,13 +27,18 @@ type Props = {
 export const DragAndDropContext: React.FC<Props> = ({ children }) => {
   const dates = getTodayAndLastPlusNextWeekDays()
   const utils = api.useUtils()
-  const { data: tasks } = api.task.getAll.useQuery({
-    dates: dates.map((date) => format(date, 'dd/MM/yyyy')),
-  })
+  const { data: tasks } = useGetTasks()
   const [draggingData, setDraggingData] = useState<DraggingData | null>(null)
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
   )
+
+  const momentarilyUpdateTasks = (tasks?: RouterOutputs['task']['getAll']) => {
+    utils.task.getAll.setData(
+      { dates: dates.map((date) => format(date, 'dd/MM/yyyy')) },
+      tasks ?? [],
+    )
+  }
 
   return (
     <DndContext
@@ -44,15 +50,16 @@ export const DragAndDropContext: React.FC<Props> = ({ children }) => {
         })
       }}
       onDragOver={({ active, over }) => {
-        if (!over) return
+        if (!over?.data.current) return
         if (active.id === over.id) return
 
+        const overCurrent = over.data.current
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        const overContainerId = over.data.current!.sortable.containerId as string
+        const overContainerId = overCurrent.sortable.containerId as string
+        const overType = overCurrent.type as string
 
-        if (over.data.current!.type === 'task') {
-          utils.task.getAll.setData(
-            { dates: dates.map((date) => format(date, 'dd/MM/yyyy')) },
+        if (overType === 'task') {
+          momentarilyUpdateTasks(
             tasks?.map((task) =>
               task.id === active.id
                 ? {
@@ -68,9 +75,8 @@ export const DragAndDropContext: React.FC<Props> = ({ children }) => {
           )
         }
 
-        if (over.data.current!.type === 'day') {
-          utils.task.getAll.setData(
-            { dates: dates.map((date) => format(date, 'dd/MM/yyyy')) },
+        if (overType === 'day') {
+          momentarilyUpdateTasks(
             tasks?.map((task) =>
               task.id === active.id
                 ? {
@@ -83,9 +89,8 @@ export const DragAndDropContext: React.FC<Props> = ({ children }) => {
           )
         }
 
-        if (over.data.current!.type === 'braindump') {
-          utils.task.getAll.setData(
-            { dates: dates.map((date) => format(date, 'dd/MM/yyyy')) },
+        if (overType === 'braindump') {
+          momentarilyUpdateTasks(
             tasks?.map((task) =>
               task.id === active.id
                 ? {
@@ -98,12 +103,7 @@ export const DragAndDropContext: React.FC<Props> = ({ children }) => {
         }
       }}
       onDragEnd={() => {
-        utils.task.getAll.setData(
-          {
-            dates: dates.map((date) => format(date, 'dd/MM/yyyy')),
-          },
-          draggingData?.tasks,
-        )
+        momentarilyUpdateTasks(draggingData?.tasks)
         setDraggingData(null)
       }}
     >

@@ -11,17 +11,12 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { AddTaskInput } from './add-task-input'
 import clsx from 'clsx'
-import { api } from '~/trpc/react'
 import { Task } from './task'
 import { SortableContext, useSortable } from '@dnd-kit/sortable'
-import { getTodayAndLastPlusNextWeekDays } from '~/lib/get-today-and-last-plus-next-week-days'
-import { format } from 'date-fns'
+import { useGetTasks } from '~/lib/useGetTasks'
 
 export const Sidebar = () => {
-  const dates = getTodayAndLastPlusNextWeekDays()
-  const { data } = api.task.getAll.useQuery({
-    dates: dates.map((date) => format(date, 'dd/MM/yyyy')),
-  })
+  const { data } = useGetTasks()
   const pathname = usePathname()
   const { setNodeRef } = useSortable({
     id: 'braindump',
