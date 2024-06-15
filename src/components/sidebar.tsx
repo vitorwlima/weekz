@@ -13,12 +13,24 @@ import { AddTaskInput } from './add-task-input'
 import clsx from 'clsx'
 import { api } from '~/trpc/react'
 import { Task } from './task'
+import { SortableContext, useSortable } from '@dnd-kit/sortable'
+import { getTodayAndLastPlusNextWeekDays } from '~/lib/get-today-and-last-plus-next-week-days'
+import { format } from 'date-fns'
 
 export const Sidebar = () => {
-  const { data } = api.task.getAllBrainDump.useQuery()
+  const dates = getTodayAndLastPlusNextWeekDays()
+  const { data } = api.task.getAll.useQuery({
+    dates: dates.map((date) => format(date, 'dd/MM/yyyy')),
+  })
   const pathname = usePathname()
+  const { setNodeRef } = useSortable({
+    id: 'braindump',
+    data: {
+      type: 'braindump',
+    },
+  })
 
-  const tasks = data ?? []
+  const tasks = data?.filter((task) => task.isBrainDump) ?? []
 
   return (
     <div className="hide-scroll flex h-screen w-96 min-w-96 flex-col overflow-hidden border-r border-neutral-300 p-6">
@@ -81,11 +93,16 @@ export const Sidebar = () => {
         <AddTaskInput isBrainDumpTask />
       </div>
 
-      <ul className="mt-2 flex h-full flex-col gap-2 overflow-y-scroll">
-        {tasks.map((task) => (
-          <Task key={task.id} task={task} />
-        ))}
-      </ul>
+      <SortableContext id="braindump" items={tasks}>
+        <ul
+          className="mt-2 flex h-full flex-col gap-2 overflow-y-scroll"
+          ref={setNodeRef}
+        >
+          {tasks.map((task) => (
+            <Task key={task.id} task={task} />
+          ))}
+        </ul>
+      </SortableContext>
     </div>
   )
 }

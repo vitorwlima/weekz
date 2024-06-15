@@ -29,12 +29,7 @@ export const AddTaskInput: React.FC<Props> = ({ isBrainDumpTask, date }) => {
   const { mutate } = api.task.create.useMutation({
     onSuccess: async () => {
       reset()
-
-      if (isBrainDumpTask) {
-        await utils.task.getAllBrainDump.invalidate()
-      } else {
-        await utils.task.getAll.invalidate()
-      }
+      await utils.task.getAll.invalidate()
     },
   })
 

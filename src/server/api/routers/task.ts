@@ -6,14 +6,25 @@ import { createTRPCRouter, protectedProcedure } from '~/server/api/trpc'
 
 export const taskRouter = createTRPCRouter({
   getAll: protectedProcedure
-    .input(z.object({ dates: z.array(z.string()) }))
+    .input(
+      z.object({
+        dates: z.array(z.string()),
+      }),
+    )
     .query(async ({ input, ctx }) => {
       return ctx.db.task.findMany({
         where: {
           userId: ctx.userId,
-          date: {
-            in: input.dates,
-          },
+          OR: [
+            {
+              date: {
+                in: input.dates,
+              },
+            },
+            {
+              isBrainDump: true,
+            },
+          ],
         },
         include: {
           taskRepetition: {
@@ -28,25 +39,6 @@ export const taskRouter = createTRPCRouter({
         },
       })
     }),
-  getAllBrainDump: protectedProcedure.query(async ({ ctx }) => {
-    return ctx.db.task.findMany({
-      where: {
-        userId: ctx.userId,
-        isBrainDump: true,
-      },
-      include: {
-        taskRepetition: {
-          select: {
-            id: true,
-            frequency: true,
-          },
-        },
-      },
-      orderBy: {
-        order: 'desc',
-      },
-    })
-  }),
   completeTask: protectedProcedure
     .input(
       z.object({

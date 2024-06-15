@@ -4,18 +4,18 @@ import { format } from 'date-fns'
 import { DayBlock } from './day-block'
 import { api } from '~/trpc/react'
 import { TaskDialog } from './task-dialog'
+import { getTodayAndLastPlusNextWeekDays } from '~/lib/get-today-and-last-plus-next-week-days'
 
 type Props = {
-  dates: Date[];
   handleScroll: () => void;
   scrollContainerRef: React.RefObject<HTMLDivElement>;
 };
 
 export const Planner: React.FC<Props> = ({
-  dates,
   handleScroll,
   scrollContainerRef,
 }) => {
+  const dates = getTodayAndLastPlusNextWeekDays()
   const utils = api.useUtils()
   const { data: tasks } = api.task.getAll.useQuery({
     dates: dates.map((date) => format(date, 'dd/MM/yyyy')),
@@ -38,18 +38,19 @@ export const Planner: React.FC<Props> = ({
       ref={scrollContainerRef}
       onScroll={handleScroll}
     >
-      {dates.map((date) => (
-        <DayBlock
-          key={format(date, 'dd/MM/yyyy')}
-          date={date}
-          tasks={
-            tasks?.filter(
-              (task) =>
-                task.date === format(date, 'dd/MM/yyyy') && !task.isBrainDump,
-            ) ?? []
-          }
-        />
-      ))}
+        {dates.map((date) => (
+          <DayBlock
+            key={format(date, 'dd/MM/yyyy')}
+            date={date}
+            tasks={
+              tasks?.filter(
+                (task) =>
+                  task.date === format(date, 'dd/MM/yyyy') && !task.isBrainDump,
+              ) ?? []
+            }
+          />
+        ))}
+
       {tasks?.map((task) => (
         <TaskDialog
           key={task.id}
