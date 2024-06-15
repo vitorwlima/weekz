@@ -34,9 +34,6 @@ export const taskRouter = createTRPCRouter({
             },
           },
         },
-        orderBy: {
-          order: 'desc',
-        },
       })
     }),
   completeTask: protectedProcedure
@@ -334,5 +331,38 @@ export const taskRouter = createTRPCRouter({
           userId: ctx.userId,
         },
       })
+    }),
+  dragToTask: protectedProcedure
+    .input(
+      z.object({
+        activeTaskId: z.string().uuid(),
+        containerTasksOrder: z.array(z.string().uuid()),
+        date: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const data =
+        input.date === 'braindump'
+          ? { isBrainDump: true }
+          : { date: input.date, isBrainDump: false }
+
+      return ctx.db.$transaction([
+        ctx.db.task.update({
+          data,
+          where: {
+            id: input.activeTaskId,
+          },
+        }),
+        ...input.containerTasksOrder.map((taskId, index) =>
+          ctx.db.task.update({
+            data: {
+              order: index + 1,
+            },
+            where: {
+              id: taskId,
+            },
+          }),
+        ),
+      ])
     }),
 })
