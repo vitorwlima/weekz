@@ -1,13 +1,9 @@
 'use client'
 
-import { format, isWeekend, getDay, parse, getDate, getMonth } from 'date-fns'
+import { format } from 'date-fns'
 import { DayBlock } from './day-block'
-import { type RouterOutputs, api } from '~/trpc/react'
-import { Frequency } from '~/lib/frequency'
-import { TaskDialog } from './task-dialog.ts'
-
-type Task = RouterOutputs['task']['getAll'][number];
-type Completion = RouterOutputs['task']['getCompletions'][number];
+import { api } from '~/trpc/react'
+import { TaskDialog } from './task-dialog'
 
 type Props = {
   dates: Date[];
@@ -15,58 +11,26 @@ type Props = {
   scrollContainerRef: React.RefObject<HTMLDivElement>;
 };
 
-const getTasksByFrequency = (tasks: Task[], date: Date) => {
-  return tasks.filter((task) => {
-    const taskDate = parse(task.date, 'dd/MM/yyyy', new Date())
-
-    const taskFrequency = task.frequency as Frequency
-
-    if (task.date === format(date, 'dd/MM/yyyy')) return true
-    if (taskFrequency === Frequency.DAILY) return true
-    if (taskFrequency === Frequency.WEEKDAYS && !isWeekend(date)) return true
-    if (taskFrequency === Frequency.WEEKENDS && isWeekend(date)) return true
-    if (taskFrequency === Frequency.WEEKLY && getDay(date) === getDay(taskDate))
-      return true
-    if (
-      taskFrequency === Frequency.MONTHLY &&
-      getDate(date) === getDate(taskDate)
-    )
-      return true
-    if (
-      taskFrequency === Frequency.YEARLY &&
-      getDate(date) === getDate(taskDate) &&
-      getMonth(date) === getMonth(taskDate)
-    )
-      return true
-  })
-}
-
-const getTasksByDate = (
-  tasks: Task[],
-  completions: Completion[],
-  date: Date,
-) => {
-  return getTasksByFrequency(tasks, date).map((task) => {
-    const completion = completions.find(
-      (completion) =>
-        completion.taskOrSubtaskId === task.id &&
-        completion.date === format(date, 'dd/MM/yyyy'),
-    )
-
-    return {
-      ...task,
-      completed: completion?.completed ?? false,
-    }
-  })
-}
-
 export const Planner: React.FC<Props> = ({
   dates,
   handleScroll,
   scrollContainerRef,
 }) => {
-  const { data: completions } = api.task.getCompletions.useQuery()
-  const { data: tasks } = api.task.getAll.useQuery()
+  const utils = api.useUtils()
+  const { data: tasks } = api.task.getAll.useQuery({
+    dates: dates.map((date) => format(date, 'dd/MM/yyyy')),
+  })
+  const { mutate } = api.task.createRepeatingTasks.useMutation({
+    onSuccess: async () => {
+      await utils.task.getAll.invalidate()
+    },
+  })
+
+  const onCreateRepeatingTasks = () => {
+    mutate({
+      dates: dates.map((date) => format(date, 'dd/MM/yyyy')),
+    })
+  }
 
   return (
     <div
@@ -78,10 +42,21 @@ export const Planner: React.FC<Props> = ({
         <DayBlock
           key={format(date, 'dd/MM/yyyy')}
           date={date}
-          tasks={getTasksByDate(tasks ?? [], completions ?? [], date)}
+          tasks={
+            tasks?.filter(
+              (task) =>
+                task.date === format(date, 'dd/MM/yyyy') && !task.isBrainDump,
+            ) ?? []
+          }
         />
       ))}
-      {tasks?.map((task) => <TaskDialog task={task} key={task.id} />)}
+      {tasks?.map((task) => (
+        <TaskDialog
+          key={task.id}
+          task={task}
+          onCreateRepeatingTasks={onCreateRepeatingTasks}
+        />
+      ))}
     </div>
   )
 }

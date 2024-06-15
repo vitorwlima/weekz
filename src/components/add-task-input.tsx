@@ -1,10 +1,10 @@
 'use client'
 
 import clsx from 'clsx'
+import { format } from 'date-fns'
 import { LucidePlusCircle as LucidePlus } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { z } from 'zod'
-import { Frequency } from '~/lib/frequency'
 import { useHandleOutsideClick } from '~/lib/use-handle-outside-click'
 import { useZodForm } from '~/lib/use-zod-form'
 import { api } from '~/trpc/react'
@@ -29,7 +29,12 @@ export const AddTaskInput: React.FC<Props> = ({ isBrainDumpTask, date }) => {
   const { mutate } = api.task.create.useMutation({
     onSuccess: async () => {
       reset()
-      await utils.task.getAll.invalidate()
+
+      if (isBrainDumpTask) {
+        await utils.task.getAllBrainDump.invalidate()
+      } else {
+        await utils.task.getAll.invalidate()
+      }
     },
   })
 
@@ -44,8 +49,8 @@ export const AddTaskInput: React.FC<Props> = ({ isBrainDumpTask, date }) => {
 
       mutate({
         title: data.title,
-        date: isBrainDumpTask ? 'braindump' : date,
-        frequency: Frequency.NO_REPEAT,
+        date: isBrainDumpTask ? format(new Date(), 'dd/MM/yyyy') : date,
+        isBrainDump: isBrainDumpTask,
         estimatedTime,
         notes: '',
       })

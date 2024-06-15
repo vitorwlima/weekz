@@ -15,10 +15,10 @@ import { api } from '~/trpc/react'
 import { Task } from './task'
 
 export const Sidebar = () => {
+  const { data } = api.task.getAllBrainDump.useQuery()
   const pathname = usePathname()
-  const { data } = api.task.getAll.useQuery()
 
-  const tasks = data?.filter((task) => task.date === 'braindump') ?? []
+  const tasks = data ?? []
 
   return (
     <div className="hide-scroll flex h-screen w-96 min-w-96 flex-col overflow-hidden border-r border-neutral-300 p-6">
@@ -83,7 +83,7 @@ export const Sidebar = () => {
 
       <ul className="mt-2 flex h-full flex-col gap-2 overflow-y-scroll">
         {tasks.map((task) => (
-          <Task key={task.id} task={task} date="braindump" />
+          <Task key={task.id} task={task} />
         ))}
       </ul>
     </div>

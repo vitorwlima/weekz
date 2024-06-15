@@ -1,5 +1,6 @@
+import { type Frequency } from '@prisma/client'
 import { useDebounce } from '@uidotdev/usehooks'
-import { format, parse } from 'date-fns'
+import { format, getDate, getDay, parse } from 'date-fns'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import { getFormattedEstimatedTime } from '~/lib/get-formatted-estimated-time'
@@ -7,12 +8,18 @@ import { api, type RouterOutputs } from '~/trpc/react'
 
 type UseTaskDialog = {
   task: RouterOutputs['task']['getAll'][number] & { completed?: boolean };
+  onCreateRepeatingTasks: () => void;
 };
 
-export const useTaskDialog = ({ task }: UseTaskDialog) => {
+export const useTaskDialog = ({ task, onCreateRepeatingTasks }: UseTaskDialog) => {
   const searchParams = useSearchParams()
   const router = useRouter()
   const isTaskDialogOpen = searchParams.get('task') === task.id
+
+  const onDialogOpenChange = (value: boolean) => {
+    if (value) return router.push(`/planner?task=${task.id}`)
+    return router.push('/planner')
+  }
 
   const [title, setTitle] = useState(task.title)
   const [notes, setNotes] = useState(task.notes)
@@ -25,7 +32,29 @@ export const useTaskDialog = ({ task }: UseTaskDialog) => {
   const debouncedNotes = useDebounce(notes, 400)
 
   const utils = api.useUtils()
-  const { mutate: updateTaskMutate } = api.task.update.useMutation({
+  const { mutate: updateDateMutate } = api.task.updateDate.useMutation({
+    onSuccess: async () => {
+      await utils.task.getAll.invalidate()
+    },
+  })
+  const { mutate: updateFrequencyMutate } =
+    api.task.updateFrequency.useMutation({
+      onSuccess: () => {
+        onCreateRepeatingTasks()
+      },
+    })
+  const { mutate: updateTitleMutate } = api.task.updateTitle.useMutation({
+    onSuccess: async () => {
+      await utils.task.getAll.invalidate()
+    },
+  })
+  const { mutate: updateEstimatedTimeMutate } =
+    api.task.updateEstimatedTime.useMutation({
+      onSuccess: async () => {
+        await utils.task.getAll.invalidate()
+      },
+    })
+  const { mutate: updateNotesMutate } = api.task.updateNotes.useMutation({
     onSuccess: async () => {
       await utils.task.getAll.invalidate()
     },
@@ -49,14 +78,9 @@ export const useTaskDialog = ({ task }: UseTaskDialog) => {
   )
 
   const taskDateObject =
-    task.date === 'braindump'
+    task.date === undefined || task.isBrainDump
       ? undefined
       : parse(task.date, 'dd/MM/yyyy', new Date())
-
-  const onDialogOpenChange = (value: boolean) => {
-    if (value) return router.push(`/planner?task=${task.id}`)
-    return router.push('/planner')
-  }
 
   const handleDeleteTask = () => {
     deleteTaskMutate({ id: task.id })
@@ -65,26 +89,23 @@ export const useTaskDialog = ({ task }: UseTaskDialog) => {
   const handleDateChange = (date?: Date) => {
     if (date === undefined) return
 
-    updateTaskMutate({
+    updateDateMutate({
       id: task.id,
-      title: task.title,
-      frequency: task.frequency,
-      estimatedTime: task.estimatedTime ?? undefined,
       date: format(date, 'dd/MM/yyyy'),
-      notes: task.notes,
     })
   }
 
-  const handleFrequencyChange = (frequency: string) => {
-    if (frequency === task.frequency) return
+  const handleFrequencyChange = (frequency: Frequency | undefined) => {
+    if (frequency === task.taskRepetition?.frequency) return
 
-    updateTaskMutate({
-      id: task.id,
-      title: task.title,
+    updateFrequencyMutate({
+      taskRepetitionId: task.taskRepetition?.id,
+      taskId: task.id,
       frequency,
-      estimatedTime: task.estimatedTime,
-      date: task.date,
-      notes: task.notes,
+      startDate: task.date,
+      title: task.title,
+      monthDay: taskDateObject && getDate(taskDateObject),
+      weekDay: taskDateObject && getDay(taskDateObject),
     })
   }
 
@@ -98,14 +119,10 @@ export const useTaskDialog = ({ task }: UseTaskDialog) => {
     if (estimatedTime === task.estimatedTime || Number.isNaN(estimatedTime))
       return
 
-    updateTaskMutate(
+    updateEstimatedTimeMutate(
       {
         id: task.id,
-        title: task.title,
-        frequency: task.frequency,
         estimatedTime,
-        date: task.date,
-        notes: task.notes,
       },
       {
         onSuccess: (data) => {
@@ -113,33 +130,25 @@ export const useTaskDialog = ({ task }: UseTaskDialog) => {
         },
       },
     )
-  }, [debouncedEstimatedTime, task, updateTaskMutate])
+  }, [debouncedEstimatedTime, task, updateEstimatedTimeMutate])
 
   useEffect(() => {
     if (debouncedTitle === task.title) return
 
-    updateTaskMutate({
+    updateTitleMutate({
       id: task.id,
       title: debouncedTitle,
-      estimatedTime: task.estimatedTime,
-      date: task.date,
-      frequency: task.frequency,
-      notes: task.notes,
     })
-  }, [debouncedTitle, task, updateTaskMutate])
+  }, [debouncedTitle, task, updateTitleMutate])
 
   useEffect(() => {
     if (debouncedNotes === task.notes) return
 
-    updateTaskMutate({
+    updateNotesMutate({
       id: task.id,
-      title: task.title,
-      estimatedTime: task.estimatedTime,
-      date: task.date,
-      frequency: task.frequency,
       notes: debouncedNotes,
     })
-  }, [debouncedNotes, task, updateTaskMutate])
+  }, [debouncedNotes, task, updateNotesMutate])
 
   return {
     isTaskDialogOpen,

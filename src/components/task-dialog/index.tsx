@@ -14,11 +14,12 @@ import { DayPicker } from 'react-day-picker'
 import 'react-day-picker/dist/style.css'
 import * as Popover from '@radix-ui/react-popover'
 import { format, isWeekend } from 'date-fns'
-import { Frequency } from '~/lib/frequency'
 import { useTaskDialog } from './use-task-dialog'
+import { Frequency } from '@prisma/client'
 
 type Props = {
-  task: RouterOutputs['task']['getAll'][number] & { completed?: boolean };
+  task: RouterOutputs['task']['getAll'][number];
+  onCreateRepeatingTasks: () => void;
 };
 
 const getFrequencyOptions = (date?: Date) => {
@@ -27,7 +28,7 @@ const getFrequencyOptions = (date?: Date) => {
   const yearlyDescription = date ? format(date, '\'on\' MMM do') : ''
 
   return [
-    { label: 'Does not repeat', value: Frequency.NO_REPEAT, visible: true },
+    { label: 'Does not repeat', value: undefined, visible: true },
     { label: 'Every day', value: Frequency.DAILY, visible: true },
     {
       label: 'Every weekday',
@@ -62,7 +63,11 @@ const getFrequencyOptions = (date?: Date) => {
   ]
 }
 
-export const TaskDialog: React.FC<Props> = ({ task }) => {
+export const TaskDialog: React.FC<Props> = ({
+  task,
+  onCreateRepeatingTasks,
+}) => {
+  const taskFrequency = task.taskRepetition?.frequency ?? undefined
   const {
     isTaskDialogOpen,
     onDialogOpenChange,
@@ -77,7 +82,7 @@ export const TaskDialog: React.FC<Props> = ({ task }) => {
     handleDateChange,
     handleFrequencyChange,
     textareaRef,
-  } = useTaskDialog({ task })
+  } = useTaskDialog({ task, onCreateRepeatingTasks })
 
   return (
     <Dialog.Root open={isTaskDialogOpen} onOpenChange={onDialogOpenChange}>
@@ -141,55 +146,56 @@ export const TaskDialog: React.FC<Props> = ({ task }) => {
               />
             </div>
 
-            <div className="grid grid-cols-3">
-              <label className="col-span-1 flex items-center gap-2 text-sm text-neutral-500">
-                <LucideRepeat className="size-4" />
-                <p>Repeats</p>
-              </label>
+            {!task.isBrainDump && (
+              <div className="grid grid-cols-3">
+                <label className="col-span-1 flex items-center gap-2 text-sm text-neutral-500">
+                  <LucideRepeat className="size-4" />
+                  <p>Repeats</p>
+                </label>
 
-              <Popover.Root>
-                <Popover.Trigger asChild>
-                  <button className="w-fit rounded-xl bg-neutral-300/80 px-2 py-0.5 outline-none hover:bg-neutral-300/50">
-                    {
-                      getFrequencyOptions(taskDateObject).find(
-                        (option) =>
-                          option.value === (task.frequency as Frequency),
-                      )?.label
-                    }
-                  </button>
-                </Popover.Trigger>
-                <Popover.Content align="start" asChild>
-                  <div className="mt-2 flex flex-col gap-0.5 rounded-xl bg-neutral-200 p-2">
-                    {getFrequencyOptions(taskDateObject).map((option) => (
-                      <Popover.Close
-                        key={option.value}
-                        className={clsx(!option.visible && 'hidden')}
-                        asChild
-                      >
-                        <button
-                          className="flex w-full items-center gap-2 rounded-xl px-2 py-1 text-left hover:bg-neutral-100/60"
-                          onClick={() => handleFrequencyChange(option.value)}
+                <Popover.Root>
+                  <Popover.Trigger asChild>
+                    <button className="w-fit rounded-xl bg-neutral-300/80 px-2 py-0.5 outline-none hover:bg-neutral-300/50">
+                      {
+                        getFrequencyOptions(taskDateObject).find(
+                          (option) => option.value === taskFrequency,
+                        )?.label
+                      }
+                    </button>
+                  </Popover.Trigger>
+                  <Popover.Content align="start" asChild>
+                    <div className="mt-2 flex flex-col gap-0.5 rounded-xl bg-neutral-200 p-2">
+                      {getFrequencyOptions(taskDateObject).map((option) => (
+                        <Popover.Close
+                          key={option.value ?? 'no_repeat'}
+                          className={clsx(!option.visible && 'hidden')}
+                          asChild
                         >
-                          {(task.frequency as Frequency) === option.value ? (
-                            <LucideCheck className="size-3" />
-                          ) : (
-                            <div className="size-3" />
-                          )}
-                          <div className="flex gap-1">
-                            <span className="text-base">{option.label}</span>
-                            <span className="text-xs leading-6 text-neutral-600">
-                              {option.description
-                                ? `(${option.description})`
-                                : ''}
-                            </span>
-                          </div>
-                        </button>
-                      </Popover.Close>
-                    ))}
-                  </div>
-                </Popover.Content>
-              </Popover.Root>
-            </div>
+                          <button
+                            className="flex w-full items-center gap-2 rounded-xl px-2 py-1 text-left hover:bg-neutral-100/60"
+                            onClick={() => handleFrequencyChange(option.value)}
+                          >
+                            {taskFrequency === option.value ? (
+                              <LucideCheck className="size-3" />
+                            ) : (
+                              <div className="size-3" />
+                            )}
+                            <div className="flex gap-1">
+                              <span className="text-base">{option.label}</span>
+                              <span className="text-xs leading-6 text-neutral-600">
+                                {option.description
+                                  ? `(${option.description})`
+                                  : ''}
+                              </span>
+                            </div>
+                          </button>
+                        </Popover.Close>
+                      ))}
+                    </div>
+                  </Popover.Content>
+                </Popover.Root>
+              </div>
+            )}
 
             <div className="my-4 h-0.5 w-full rounded-full bg-neutral-200" />
 
