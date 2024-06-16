@@ -172,17 +172,18 @@ export const DragAndDropContext: React.FC<Props> = ({ children }) => {
     >
       {children}
 
-      {createPortal(
-        <DragOverlay>
-          {!!draggingData && (
-            <Task
-              key={tasks.find((task) => task.id === draggingData.taskId)!.id}
-              task={tasks.find((task) => task.id === draggingData.taskId)!}
-            />
-          )}
-        </DragOverlay>,
-        document.body,
-      )}
+      {typeof window !== 'undefined' &&
+        createPortal(
+          <DragOverlay>
+            {!!draggingData && (
+              <Task
+                key={tasks.find((task) => task.id === draggingData.taskId)!.id}
+                task={tasks.find((task) => task.id === draggingData.taskId)!}
+              />
+            )}
+          </DragOverlay>,
+          window.document.body,
+        )}
     </DndContext>
   )
 }
