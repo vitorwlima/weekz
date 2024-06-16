@@ -29,7 +29,11 @@ This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3
   - [] edit will open same dialog
   - [] delete will delete the task if frequency is once or date is braindump - otherwise, if there are completions, show dialog asking if you want to delete making it clear that deletions will also be deleted
 
-### Part 3 (feature expansion)
+## Part 3 (landing page)
+- [] Show current features
+- [] Show upcoming features
+
+### Part 4 (feature expansion)
 - [] Add subtasks
 - [] Implement task search
 - [] Add task labels
@@ -37,7 +41,7 @@ This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3
 - [] Add multiple themes (paid feature)
 - [] Add settings page
 
-### Part 4 (business)
+### Part 5 (business)
 - [] Add analytics to dashboard
 - [] Separate dashboard into like 3 different sections with different analytics, like:
   - [] Task completion rate
