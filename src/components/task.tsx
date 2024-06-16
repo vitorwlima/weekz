@@ -28,7 +28,10 @@ export const Task: React.FC<Props> = ({ task }) => {
     setNodeRef,
     transform,
     transition,
-  } = useSortable({ id: task.id, data: { type: 'task' } })
+  } = useSortable({
+    id: task.id,
+    data: { type: 'task', task },
+  })
 
   const handleOnCheckedChange = (value: Checkbox.CheckedState) => {
     if (task.isBrainDump) return
@@ -37,43 +40,6 @@ export const Task: React.FC<Props> = ({ task }) => {
       id: task.id,
       completed: value as boolean,
     })
-  }
-
-  if (isDragging) {
-    return (
-      <li
-        {...attributes}
-        {...listeners}
-        ref={setNodeRef}
-        style={{
-          transition,
-          transform: CSS.Transform.toString(transform),
-        }}
-        className="flex cursor-pointer items-start justify-between gap-2 rounded-xl border border-neutral-300 bg-neutral-200 p-4 text-transparent"
-        onClick={() => router.push(`/planner?task=${task.id}`)}
-      >
-        <div className="flex items-start gap-2">
-          {!task.isBrainDump && (
-            <div className="flex h-6 items-center justify-center">
-              <Checkbox.Root
-                className={clsx(
-                  'flex aspect-square size-5 min-w-5 items-center justify-center rounded-lg border border-transparent bg-transparent',
-                )}
-                checked={task.completed}
-              >
-                <Checkbox.Indicator>
-                  <LucideCheck className="size-3 text-neutral-50" />
-                </Checkbox.Indicator>
-              </Checkbox.Root>
-            </div>
-          )}
-          <p className="font-light">{task.title}</p>
-        </div>
-        <p className="min-w-fit rounded-md bg-transparent p-1 text-xs font-light tracking-tighter">
-          {getFormattedEstimatedTime(task.estimatedTime)}
-        </p>
-      </li>
-    )
   }
 
   return (
@@ -85,7 +51,10 @@ export const Task: React.FC<Props> = ({ task }) => {
         transition,
         transform: CSS.Transform.toString(transform),
       }}
-      className="flex cursor-pointer items-start justify-between gap-2 rounded-xl border border-neutral-300 bg-neutral-50 p-4"
+      className={clsx(
+        'flex cursor-pointer items-start justify-between gap-2 rounded-xl border border-neutral-300 bg-neutral-50 p-4',
+        isDragging && 'opacity-50',
+      )}
       onClick={() => router.push(`/planner?task=${task.id}`)}
     >
       <div className="flex items-start gap-2">

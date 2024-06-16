@@ -16,7 +16,7 @@ This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3
   - [x] notes
 - [x] Add task delete
 - [x] Add logic to show correct tasks based on date and frequency
-- [] Add dragging and dropping tasks
+- [x] Add dragging and dropping tasks
 - [] Improve UX/UI
 
 ### Part 2

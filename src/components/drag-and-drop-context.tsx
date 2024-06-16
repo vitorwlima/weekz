@@ -7,6 +7,7 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core'
+import { arrayMove } from '@dnd-kit/sortable'
 import { format } from 'date-fns'
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
@@ -26,12 +27,17 @@ type Props = {
 
 export const DragAndDropContext: React.FC<Props> = ({ children }) => {
   const dates = getTodayAndLastPlusNextWeekDays()
-  const utils = api.useUtils()
-  const { data: tasks } = useGetTasks()
   const [draggingData, setDraggingData] = useState<DraggingData | null>(null)
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
   )
+  const utils = api.useUtils()
+  const tasks = useGetTasks()
+  const { mutate: mutateDragToTask } = api.task.dragToTask.useMutation({
+    onError: async () => {
+      await utils.task.getAll.invalidate()
+    },
+  })
 
   const momentarilyUpdateTasks = (tasks?: RouterOutputs['task']['getAll']) => {
     utils.task.getAll.setData(
@@ -58,20 +64,48 @@ export const DragAndDropContext: React.FC<Props> = ({ children }) => {
         const overContainerId = overCurrent.sortable.containerId as string
         const overType = overCurrent.type as string
 
+        const tasksInContainer = tasks.filter((task) => {
+          const overTask = tasks.find((task) => task.id === over.id)
+          if (overTask?.isBrainDump) {
+            return task.isBrainDump
+          }
+
+          return task.date === overContainerId && !task.isBrainDump
+        })
+
         if (overType === 'task') {
+          const containerTasksOrder = arrayMove(
+            tasksInContainer,
+            tasksInContainer.findIndex((task) => task.id === active.id),
+            tasksInContainer.findIndex((task) => task.id === over.id),
+          )
+            .map((task) => task.id)
+            .reverse()
+
           momentarilyUpdateTasks(
-            tasks?.map((task) =>
-              task.id === active.id
-                ? {
+            tasks
+              ?.map((task) =>
+                task.id === active.id
+                  ? {
+                      ...task,
+                      date:
+                        overContainerId === 'braindump'
+                          ? task.date
+                          : overContainerId,
+                      isBrainDump: overContainerId === 'braindump',
+                    }
+                  : task,
+              )
+              .map((task) => {
+                if (containerTasksOrder.includes(task.id)) {
+                  return {
                     ...task,
-                    date:
-                      overContainerId === 'braindump'
-                        ? task.date
-                        : overContainerId,
-                    isBrainDump: overContainerId === 'braindump',
+                    order: containerTasksOrder.indexOf(task.id) + 1,
                   }
-                : task,
-            ),
+                }
+
+                return task
+              }),
           )
         }
 
@@ -83,6 +117,7 @@ export const DragAndDropContext: React.FC<Props> = ({ children }) => {
                     ...task,
                     date: over.id as string,
                     isBrainDump: false,
+                    order: 0,
                   }
                 : task,
             ),
@@ -96,15 +131,43 @@ export const DragAndDropContext: React.FC<Props> = ({ children }) => {
                 ? {
                     ...task,
                     isBrainDump: true,
+                    order: 0,
                   }
                 : task,
             ),
           )
         }
       }}
-      onDragEnd={() => {
-        momentarilyUpdateTasks(draggingData?.tasks)
+      onDragEnd={({ active, over }) => {
         setDraggingData(null)
+
+        const draggedTask = active.data.current!
+          .task as RouterOutputs['task']['getAll'][number]
+        const taskIsTheSame = Object.is(
+          draggedTask,
+          draggingData?.tasks.find((task) => task.id === active.id),
+        )
+
+        if (!over?.data.current) return
+        if (taskIsTheSame) return
+
+        const tasksInContainer = draggedTask.isBrainDump
+          ? tasks.filter((task) => task.isBrainDump)
+          : tasks.filter(
+              (task) => task.date === draggedTask.date && !task.isBrainDump,
+            )
+
+        const orderUpdates = tasksInContainer.map((task) => ({
+          id: task.id,
+          order: task.order,
+        }))
+
+        return mutateDragToTask({
+          id: draggedTask.id,
+          date: draggedTask.date,
+          isBrainDump: draggedTask.isBrainDump,
+          orderUpdates,
+        })
       }}
     >
       {children}
@@ -113,7 +176,8 @@ export const DragAndDropContext: React.FC<Props> = ({ children }) => {
         <DragOverlay>
           {!!draggingData && (
             <Task
-              task={tasks!.find((task) => task.id === draggingData.taskId)!}
+              key={tasks.find((task) => task.id === draggingData.taskId)!.id}
+              task={tasks.find((task) => task.id === draggingData.taskId)!}
             />
           )}
         </DragOverlay>,
