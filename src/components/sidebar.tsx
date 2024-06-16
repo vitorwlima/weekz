@@ -31,7 +31,7 @@ export const Sidebar = () => {
     <div className="hide-scroll flex h-screen w-96 min-w-96 flex-col overflow-hidden border-r border-neutral-300 p-6">
       <div className="flex flex-col">
         <header className="mb-6 flex items-center justify-between">
-          <h1 className="text-xl font-bold">dayprime</h1>
+          <h1 className="text-xl font-bold">weekz</h1>
           <UserButton />
         </header>
 
