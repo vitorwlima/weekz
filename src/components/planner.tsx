@@ -6,6 +6,7 @@ import { api } from '~/trpc/react'
 import { TaskDialog } from './task-dialog'
 import { getTodayAndLastPlusNextWeekDays } from '~/lib/get-today-and-last-plus-next-week-days'
 import { useGetTasks } from '~/lib/useGetTasks'
+import { useEffect } from 'react'
 
 type Props = {
   handleScroll: () => void;
@@ -30,6 +31,13 @@ export const Planner: React.FC<Props> = ({
       dates: dates.map((date) => format(date, 'dd/MM/yyyy')),
     })
   }
+
+  useEffect(() => {
+    mutate({
+      dates: dates.map((date) => format(date, 'dd/MM/yyyy')),
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <div
