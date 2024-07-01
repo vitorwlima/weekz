@@ -1,3 +1,5 @@
+'use client'
+
 import { startOfToday, subDays, eachDayOfInterval, addDays } from 'date-fns'
 
 export const getTodayAndLastPlusNextWeekDays = () => {
