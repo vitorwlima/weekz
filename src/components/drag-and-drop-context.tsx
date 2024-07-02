@@ -13,7 +13,7 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Task } from '~/components/task'
 import { getTodayAndLastPlusNextWeekDays } from '~/lib/get-today-and-last-plus-next-week-days'
-import { useGetTasks } from '~/lib/useGetTasks'
+import { useGetTasks } from '~/lib/use-get-tasks'
 import { type RouterOutputs, api } from '~/trpc/react'
 
 type DraggingData = {

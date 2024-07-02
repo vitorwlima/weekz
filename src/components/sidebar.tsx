@@ -13,7 +13,7 @@ import { AddTaskInput } from './add-task-input'
 import clsx from 'clsx'
 import { Task } from './task'
 import { SortableContext, useSortable } from '@dnd-kit/sortable'
-import { useGetTasks } from '~/lib/useGetTasks'
+import { useGetTasks } from '~/lib/use-get-tasks'
 
 export const Sidebar = () => {
   const data = useGetTasks()

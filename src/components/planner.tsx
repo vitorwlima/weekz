@@ -5,7 +5,7 @@ import { DayBlock } from './day-block'
 import { api } from '~/trpc/react'
 import { TaskDialog } from './task-dialog'
 import { getTodayAndLastPlusNextWeekDays } from '~/lib/get-today-and-last-plus-next-week-days'
-import { useGetTasks } from '~/lib/useGetTasks'
+import { useGetTasks } from '~/lib/use-get-tasks'
 import { useEffect } from 'react'
 
 type Props = {
