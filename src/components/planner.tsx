@@ -11,11 +11,17 @@ import { useEffect } from 'react'
 type Props = {
   handleScroll: () => void;
   scrollContainerRef: React.RefObject<HTMLDivElement>;
+  handleDragStart: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+  handleDragMove: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+  handleDragStop: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 };
 
 export const Planner: React.FC<Props> = ({
   handleScroll,
   scrollContainerRef,
+  handleDragStart,
+  handleDragMove,
+  handleDragStop,
 }) => {
   const dates = getTodayAndLastPlusNextWeekDays()
   const utils = api.useUtils()
@@ -44,6 +50,10 @@ export const Planner: React.FC<Props> = ({
       className="flex h-full gap-4 overflow-x-auto overflow-y-hidden"
       ref={scrollContainerRef}
       onScroll={handleScroll}
+      onMouseDown={handleDragStart}
+      onMouseMove={handleDragMove}
+      onMouseUp={handleDragStop}
+      onMouseLeave={handleDragStop}
     >
       {dates.map((date) => (
         <DayBlock

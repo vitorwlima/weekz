@@ -5,8 +5,14 @@ import { Planner } from '~/components/planner'
 import { usePlannerScrolling } from './use-planner-scrolling'
 
 const PlannerPage = () => {
-  const { handleScroll, handleScrollToToday, scrollContainerRef } =
-    usePlannerScrolling()
+  const {
+    handleScroll,
+    handleScrollToToday,
+    scrollContainerRef,
+    handleDragStart,
+    handleDragMove,
+    handleDragStop,
+  } = usePlannerScrolling()
 
   return (
     <main className="flex h-screen flex-col overflow-hidden p-6">
@@ -16,6 +22,9 @@ const PlannerPage = () => {
       />
       <Planner
         handleScroll={handleScroll}
+        handleDragStart={handleDragStart}
+        handleDragMove={handleDragMove}
+        handleDragStop={handleDragStop}
         scrollContainerRef={
           scrollContainerRef as React.RefObject<HTMLDivElement>
         }

@@ -48,6 +48,7 @@ export const DragAndDropContext: React.FC<Props> = ({ children }) => {
 
   return (
     <DndContext
+      autoScroll={{ enabled: false }}
       sensors={sensors}
       onDragStart={({ active }) => {
         setDraggingData({
