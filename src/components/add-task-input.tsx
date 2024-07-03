@@ -62,6 +62,7 @@ export const AddTaskInput: React.FC<Props> = ({ isBrainDumpTask, date }) => {
 
   return (
     <form
+      onMouseDown={(e) => e.stopPropagation()}
       onSubmit={handleSubmit}
       // onBlur={() => reset()} // onBlur reset both inputs
       ref={containerRef}
